@@ -11,11 +11,13 @@ import androidx.annotation.WorkerThread
 
 import com.android.apksig.ApkSigner
 import com.android.apksig.ApkVerifier
-import com.rosan.installer.self.filecache.FileCache
+
+import com.rosan.installer.apk.signing.ZipAlign
 import com.rosan.installer.crypto.ks.KeyStoreManager
+import com.rosan.installer.self.filecache.FileCache
 import com.rosan.installer.util.DigestUtils
 import com.rosan.installer.util.Utils
-import com.rosan.installer.apk.signing.ZipAlign
+
 import java.io.File
 import java.io.IOException
 import java.security.KeyStoreException
