@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.crypto.SecretKey
 
-public class KeyStoreManager private constructor() {
+public class KeyStoreManager {
     companion object {
         const val TAG = "KSManager"
         const val AM_KEYSTORE_FILE_NAME = "am_keystore.bks"
