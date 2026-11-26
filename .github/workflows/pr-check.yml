@@ -159,3 +159,4 @@ jobs:
           path: app/build/outputs/apk/**/release/mapping.txt
           retention-days: 15
           archive: false
+# Build triggered by workflow file update
