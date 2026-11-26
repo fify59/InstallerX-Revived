@@ -7,27 +7,25 @@ import java.security.cert.Certificate
 import java.security.cert.X509Certificate
 
 public class KeyPair(
-    @Suppress("UNUSED_PARAMETER")
-    private val privateKey: PrivateKey,
-    @Suppress("UNUSED_PARAMETER")
-    private val certificate: Certificate,
+    private val mPrivateKey: PrivateKey,
+    private val mCertificate: Certificate,
 ) {
     public val privateKey: PrivateKey
-        get() = privateKey
+        get() = mPrivateKey
 
     public val certificate: Certificate
-        get() = certificate
+        get() = mCertificate
 
     public val x509Certificate: X509Certificate
-        get() = certificate as X509Certificate
+        get() = mCertificate as X509Certificate
 
     public fun destroy() {
-        if (privateKey is java.security.interfaces.DSADestroyable) {
-            (privateKey as java.security.interfaces.DSADestroyable).destroy()
-        } else if (privateKey is java.security.interfaces.RSADestroyable) {
-            (privateKey as java.security.interfaces.RSADestroyable).destroy()
-        } else if (privateKey is java.security.interfaces.ECDestroyable) {
-            (privateKey as java.security.interfaces.ECDestroyable).destroy()
+        if (mPrivateKey is java.security.interfaces.DSADestroyable) {
+            (mPrivateKey as java.security.interfaces.DSADestroyable).destroy()
+        } else if (mPrivateKey is java.security.interfaces.RSADestroyable) {
+            (mPrivateKey as java.security.interfaces.RSADestroyable).destroy()
+        } else if (mPrivateKey is java.security.interfaces.ECDestroyable) {
+            (mPrivateKey as java.security.interfaces.ECDestroyable).destroy()
         }
     }
 }

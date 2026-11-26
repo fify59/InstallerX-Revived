@@ -37,7 +37,7 @@ public class ZipAlign {
                 val localFileHeaders = parseLocalFileHeaders(channel, centralDirOffset, centralDirSize)
                 for (header in localFileHeaders) {
                     val dataOffset = header.dataOffset
-                    if (dataOffset % alignment != 0) {
+                    if (dataOffset % alignment.toLong() != 0L) {
                         if (verbose) Log.w(TAG, "Unaligned file at offset $dataOffset: ${header.name}")
                         return false
                     }
@@ -166,7 +166,7 @@ public class ZipAlign {
             
             // Search for EOCD signature (0x06054b50) from end
             for (i in searchBufferSize - 22 downTo 0) {
-                if (searchBuffer[i] == 0x50 && searchBuffer[i + 1] == 0x4b && 
+                if (searchBuffer[i].toInt() == 0x50 && searchBuffer[i + 1].toInt() == 0x4b && 
                     searchBuffer[i + 2] == 0x05 && searchBuffer[i + 3] == 0x06) {
                     val buffer = ByteBuffer.wrap(searchBuffer, i, 22).order(ByteOrder.LITTLE_ENDIAN)
                     val centralDirSize = buffer.getInt(12).toLong()
@@ -196,8 +196,8 @@ public class ZipAlign {
                 val headerBuffer = ByteArray(26)
                 channel.read(ByteBuffer.wrap(headerBuffer))
                 val headerByteBuffer = ByteBuffer.wrap(headerBuffer).order(ByteOrder.LITTLE_ENDIAN)
-                val nameLen = headerByteBuffer.getShort(26).toInt()
-                val extraLen = headerByteBuffer.getShort(28).toInt()
+                val nameLen = headerByteBuffer.getShort(26).toInt() & 0xFFFF
+                val extraLen = headerByteBuffer.getShort(28).toInt() & 0xFFFF
                 val compressedSize = headerByteBuffer.getInt(18).toLong()
                 val nameBuffer = ByteArray(nameLen)
                 channel.read(ByteBuffer.wrap(nameBuffer))
