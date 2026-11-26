@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.crypto.SecretKey
 
-public class KeyStoreManager {
-    public companion object {
+public class KeyStoreManager private constructor() {
+    companion object {
         const val TAG = "KSManager"
         const val AM_KEYSTORE_FILE_NAME = "am_keystore.bks"
         const val AM_KEYSTORE = "BKS"
@@ -37,6 +37,7 @@ public class KeyStoreManager {
         const val ACTION_KS_INTERACTION_BEGIN = "com.rosan.installer.x.revived.action.KS_INTERACTION_BEGIN"
         const val ACTION_KS_INTERACTION_END = "com.rosan.installer.x.revived.action.KS_INTERACTION_END"
 
+        @SuppressLint("StaticFieldLeak")
         private var sInstance: KeyStoreManager? = null
 
         public synchronized fun getInstance(): KeyStoreManager {
@@ -278,4 +279,5 @@ private object Log {
     fun e(tag: String, msg: String, tr: Throwable? = null) {
         android.util.Log.e(tag, msg, tr)
     }
+}
 }
