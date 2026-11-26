@@ -160,8 +160,5 @@ androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profi
 
 # BouncyCastle for BKS KeyStore
 # https://www.bouncycastle.org/java.html
-bouncycastle = "1.80"
-bcpkix = "1.80"
-
-bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-pkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix" }
+bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version = "1.80" }
+bouncycastle-pkix = { module = "org.bouncycastle:bcpkix-jdk18on", version = "1.80" }
