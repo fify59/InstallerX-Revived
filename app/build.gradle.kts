@@ -19,7 +19,7 @@ android {
 
     java {
         toolchain {
-            languageVersion.set(21)
+            languageVersion.set(org.gradle.api.JavaLanguageVersion.of(21))
         }
     }
 
