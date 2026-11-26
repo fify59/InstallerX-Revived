@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.crypto.SecretKey
+import kotlin.jvm.Synchronized
 
 public class KeyStoreManager {
     companion object {
@@ -39,18 +40,18 @@ public class KeyStoreManager {
 
         private var sInstance: KeyStoreManager? = null
 
-        public synchronized fun getInstance(): KeyStoreManager {
+        @Synchronized fun getInstance(): KeyStoreManager {
             if (sInstance == null) {
                 sInstance = KeyStoreManager()
             }
             return sInstance!!
         }
 
-        public synchronized fun reloadKeyStore() {
+        @Synchronized fun reloadKeyStore() {
             sInstance = KeyStoreManager()
         }
 
-        public synchronized fun clearCachedKeyStore() {
+        @Synchronized fun clearCachedKeyStore() {
             sInstance = null
         }
     }
