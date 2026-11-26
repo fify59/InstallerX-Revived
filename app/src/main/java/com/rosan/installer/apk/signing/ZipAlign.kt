@@ -185,7 +185,7 @@ public class ZipAlign {
         private fun parseLocalFileHeaders(
             channel: FileChannel,
             centralDirOffset: Long,
-            centralDirSize: Long
+            centralDirSize: Long,
         ): List<LocalFileHeader> {
             val headers = mutableListOf<LocalFileHeader>()
             channel.position(0)
@@ -209,13 +209,15 @@ public class ZipAlign {
                 val headerSize = 30 + nameLen + extraLen
                 val dataOffset = channel.position() + extraLen
                 channel.position(dataOffset + compressedSize)
-                headers.add(LocalFileHeader(
-                    headerOffset = headerStart,
-                    headerSize = headerSize.toLong(),
-                    dataOffset = dataOffset,
-                    dataSize = compressedSize,
-                    name = name
-                ))
+                headers.add(
+                    LocalFileHeader(
+                        headerOffset = headerStart,
+                        headerSize = headerSize.toLong(),
+                        dataOffset = dataOffset,
+                        dataSize = compressedSize,
+                        name = name,
+                    ),
+                )
             }
             return headers
         }
