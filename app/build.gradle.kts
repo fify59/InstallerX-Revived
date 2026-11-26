@@ -1,5 +1,4 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
-import org.gradle.api.JavaLanguageVersion
 
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
@@ -18,10 +17,13 @@ plugins {
 android {
     namespace = "com.rosan.installer"
 
-    java {
-        toolchain {
-            languageVersion.set(org.gradle.api.JavaLanguageVersion.of(21))
-        }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
     }
 
     val properties = Properties()
