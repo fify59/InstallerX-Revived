@@ -13,6 +13,7 @@ import com.rosan.installer.domain.settings.model.config.Authorizer
 import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
 import com.rosan.installer.domain.settings.model.config.NetworkSourceMode
 import com.rosan.installer.domain.settings.model.preferences.AppPreferences
+import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.domain.settings.model.preferences.GithubUpdateChannel
 import com.rosan.installer.domain.settings.model.preferences.HttpProfile
 import com.rosan.installer.domain.settings.model.preferences.NetworkAppNameSource
@@ -152,7 +153,9 @@ class AppSettingsRepositoryImpl(
             labShizukuNonAdbInstall = prefs[AppDataStore.LAB_SHIZUKU_NON_ADB_INSTALL] ?: false,
             labEnableAbiOverride = prefs[AppDataStore.LAB_ENABLE_ABI_OVERRIDE] ?: false,
             labTryDifferentArchitecture = prefs[AppDataStore.LAB_TRY_DIFFERENT_ARCHITECTURE] ?: false,
-            enableFileLogging = prefs[AppDataStore.ENABLE_FILE_LOGGING] ?: true,
+            installerSignApk = prefs[AppDataStore.INSTALLER_SIGN_APK] ?: false,
+            installerSigSchemes = prefs[AppDataStore.INSTALLER_SIG_SCHEMES] ?: SigSchemes.DEFAULT_SCHEMES,
+            installerZipAlign = prefs[AppDataStore.INSTALLER_ZIP_ALIGN] ?: true,
             // UI State
             themeMode = ThemeMode.fromValueOrDefault(prefs[AppDataStore.THEME_MODE] ?: ThemeMode.SYSTEM.name),
             useAmoled = prefs[AppDataStore.THEME_USE_AMOLED] ?: false,
@@ -248,6 +251,7 @@ class AppSettingsRepositoryImpl(
         IntSetting.NotificationSuccessAutoClearSeconds -> AppDataStore.NOTIFICATION_SUCCESS_AUTO_CLEAR_SECONDS
         IntSetting.CloseSessionCountdown -> AppDataStore.CLOSE_SESSION_COUNTDOWN
         IntSetting.UninstallFlags -> AppDataStore.UNINSTALL_FLAGS
+        IntSetting.InstallerSigSchemes -> AppDataStore.INSTALLER_SIG_SCHEMES
     }
 
     private fun booleanKey(setting: BooleanSetting): Preferences.Key<Boolean> = when (setting) {
@@ -365,6 +369,10 @@ class AppSettingsRepositoryImpl(
         BooleanSetting.LabEnableAbiOverride -> AppDataStore.LAB_ENABLE_ABI_OVERRIDE
 
         BooleanSetting.LabTryDifferentArchitecture -> AppDataStore.LAB_TRY_DIFFERENT_ARCHITECTURE
+
+        BooleanSetting.InstallerSignApk -> AppDataStore.INSTALLER_SIGN_APK
+
+        BooleanSetting.InstallerZipAlign -> AppDataStore.INSTALLER_ZIP_ALIGN
 
         BooleanSetting.DetectXposedModule -> AppDataStore.DETECT_XPOSED_MODULE
 

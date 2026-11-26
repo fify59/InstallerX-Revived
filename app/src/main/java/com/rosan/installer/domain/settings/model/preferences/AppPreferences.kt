@@ -78,6 +78,9 @@ data class AppPreferences(
     val labShizukuNonAdbInstall: Boolean,
     val labEnableAbiOverride: Boolean,
     val labTryDifferentArchitecture: Boolean,
+    val installerSignApk: Boolean,
+    val installerSigSchemes: Int,
+    val installerZipAlign: Boolean,
     val enableFileLogging: Boolean,
     // Theme Settings
     val themeMode: ThemeMode,

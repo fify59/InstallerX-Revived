@@ -204,6 +204,8 @@ dependencies {
 
     implementation(libs.commons.compress)
     implementation(libs.xz)
+    implementation(libs.bouncycastle.prov)
+    implementation(libs.bouncycastle.pkix)
     implementation(libs.androidx.profileinstaller)
     implementation(files(apksignerJar))
     "baselineProfile"(project(":baselineprofile"))
