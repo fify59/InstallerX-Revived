@@ -5,15 +5,12 @@ package com.rosan.installer.apk.signing
 import androidx.annotation.IntDef
 
 public class SigSchemes {
-@IntDef(
-        flag = true,
-        value = [
-            SIG_SCHEME_V1,
-            SIG_SCHEME_V2,
-            SIG_SCHEME_V3,
-            SIG_SCHEME_V4
-        ]
-    )
+    @IntDef(flag = true, value = [
+        SIG_SCHEME_V1,
+        SIG_SCHEME_V2,
+        SIG_SCHEME_V3,
+        SIG_SCHEME_V4
+    ])
     public annotation class SignatureScheme
 
     companion object {
