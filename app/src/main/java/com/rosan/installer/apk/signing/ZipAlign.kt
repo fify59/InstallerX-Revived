@@ -62,14 +62,14 @@ public class ZipAlign {
                 val outChannel = outRaf.channel
                 val zipEndOfCentralDirectory = findZipEndOfCentralDirectory(inChannel)
                     ?: throw IOException("Not a valid ZIP file")
-                
+
                 val centralDirOffset = zipEndOfCentralDirectory.centralDirOffset
                 val centralDirSize = zipEndOfCentralDirectory.centralDirSize
                 val localFileHeaders = parseLocalFileHeaders(inChannel, centralDirOffset, centralDirSize)
-                
+
                 var currentOutOffset = 0L
                 val alignmentLong = alignment.toLong()
-                
+
                 // Copy local file headers and data with alignment
                 for (header in localFileHeaders) {
                     val padding = (alignmentLong - (currentOutOffset % alignmentLong)) % alignmentLong
@@ -78,7 +78,7 @@ public class ZipAlign {
                         outChannel.write(ByteBuffer.wrap(paddingBytes))
                         currentOutOffset += padding
                     }
-                    
+
                     // Copy local file header
                     inChannel.position(header.headerOffset)
                     val headerBuffer = ByteBuffer.allocate(header.headerSize.toInt())
@@ -86,7 +86,7 @@ public class ZipAlign {
                     headerBuffer.flip()
                     outChannel.write(headerBuffer)
                     currentOutOffset += header.headerSize
-                    
+
                     // Copy file data
                     inChannel.position(header.dataOffset)
                     val dataSize = header.dataSize
@@ -102,7 +102,7 @@ public class ZipAlign {
                         remaining -= read
                     }
                 }
-                
+
                 // Copy central directory and end of central directory
                 inChannel.position(centralDirOffset)
                 val centralDirBuffer = ByteBuffer.allocate(centralDirSize.toInt())
@@ -110,7 +110,7 @@ public class ZipAlign {
                 centralDirBuffer.flip()
                 outChannel.write(centralDirBuffer)
                 currentOutOffset += centralDirSize
-                
+
                 // Copy end of central directory record
                 val eocdOffset = zipEndOfCentralDirectory.eocdOffset
                 val eocdSize = zipEndOfCentralDirectory.eocdSize
@@ -119,15 +119,15 @@ public class ZipAlign {
                 inChannel.read(eocdBuffer)
                 eocdBuffer.flip()
                 outChannel.write(eocdBuffer)
-                
+
                 // Update central directory offset in EOCD
                 val newEocdOffset = currentOutOffset
                 val eocdData = eocdBuffer.array()
                 ByteBuffer.wrap(eocdData).order(ByteOrder.LITTLE_ENDIAN).putInt(16, newEocdOffset.toInt())
-                
+
                 inRaf.close()
                 outRaf.close()
-                
+
                 // Replace original file
                 if (!alignedFile.renameTo(apk)) {
                     throw IOException("Failed to replace original APK with aligned version")
@@ -158,13 +158,13 @@ public class ZipAlign {
         private fun findZipEndOfCentralDirectory(channel: FileChannel): ZipEndOfCentralDirectory? {
             val fileSize = channel.size()
             if (fileSize < 22) return null // Minimum EOCD size
-            
+
             val searchBufferSize = min(65536, fileSize.toInt())
             val searchBuffer = ByteArray(searchBufferSize)
             val searchStart = fileSize - searchBufferSize
             channel.position(searchStart)
             channel.read(ByteBuffer.wrap(searchBuffer))
-            
+
             // Search for EOCD signature (0x06054b50) from end
             for (i in searchBufferSize - 22 downTo 0) {
                 val b0 = searchBuffer[i].toInt() and 0xFF
