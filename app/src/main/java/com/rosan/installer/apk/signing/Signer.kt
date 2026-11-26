@@ -10,7 +10,15 @@ import androidx.annotation.WorkerThread
 
 import com.android.apksig.ApkSigner
 import com.android.apksig.ApkVerifier
-
+import com.rosan.installer.apk.ApkFile
+import com.rosan.installer.apk.signing.FileCache
+import com.rosan.installer.apk.signing.Prefs
+import com.rosan.installer.crypto.ks.KeyStoreManager
+import com.rosan.installer.logs.Log
+import com.rosan.installer.utils.DigestUtils
+import com.rosan.installer.utils.HexEncoding
+import com.rosan.installer.utils.Utils
+import com.rosan.installer.apk.signing.ZipAlign
 import java.io.File
 import java.io.IOException
 import java.security.KeyStoreException
@@ -26,6 +34,7 @@ import java.security.interfaces.ECKey
 import java.security.interfaces.RSAKey
 import java.util.Collections
 import java.util.List
+import aosp.libcore.util.HexEncoding
 
 public class Signer {
     public companion object {
@@ -127,7 +136,7 @@ public class Signer {
                     if (result.isSourceStampVerified()) {
                         Log.i(TAG, "SourceStamp verified.")
                     } else Log.w(TAG, "SourceStamp not verified/unavailable.")
-                    val i = 0
+                    var i = 0
                     val signerCertificates = result.getSignerCertificates()
                     Log.i(TAG, "Number of signatures: ${signerCertificates.size}")
                     for (logCert in signerCertificates) {
