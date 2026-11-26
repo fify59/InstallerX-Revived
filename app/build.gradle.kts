@@ -1,4 +1,5 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
+import org.gradle.api.JavaLanguageVersion
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import java.util.Properties
 
@@ -14,6 +15,12 @@ plugins {
 
 android {
     namespace = "com.rosan.installer"
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 
     val properties = Properties()
     val keystorePropertiesFile = rootProject.file("keystore.properties")
