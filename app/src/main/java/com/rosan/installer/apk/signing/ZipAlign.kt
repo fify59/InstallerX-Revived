@@ -167,8 +167,11 @@ public class ZipAlign {
             
             // Search for EOCD signature (0x06054b50) from end
             for (i in searchBufferSize - 22 downTo 0) {
-                if ((searchBuffer[i].toInt() and 0xFF) == 0x50 && searchBuffer[i + 1].toInt() == 0x4b && 
-                    searchBuffer[i + 2].toInt() == 0x05 && searchBuffer[i + 3].toInt() == 0x06) {
+                val b0 = searchBuffer[i].toInt() and 0xFF
+                val b1 = searchBuffer[i + 1].toInt() and 0xFF
+                val b2 = searchBuffer[i + 2].toInt() and 0xFF
+                val b3 = searchBuffer[i + 3].toInt() and 0xFF
+                if (b0 == 0x50 && b1 == 0x4b && b2 == 0x05 && b3 == 0x06) {
                     val buffer = ByteBuffer.wrap(searchBuffer, i, 22).order(ByteOrder.LITTLE_ENDIAN)
                     val centralDirSize = buffer.getInt(12).toLong()
                     val centralDirOffset = buffer.getInt(16).toLong()
@@ -197,8 +200,8 @@ public class ZipAlign {
                 val headerBuffer = ByteArray(26)
                 channel.read(ByteBuffer.wrap(headerBuffer))
                 val headerByteBuffer = ByteBuffer.wrap(headerBuffer).order(ByteOrder.LITTLE_ENDIAN)
-                val nameLen = headerByteBuffer.getShort(26).toInt() & 0xFFFF
-                val extraLen = headerByteBuffer.getShort(28).toInt() & 0xFFFF
+                val nameLen = headerByteBuffer.getShort(26).toInt() and 0xFFFF
+                val extraLen = headerByteBuffer.getShort(28).toInt() and 0xFFFF
                 val compressedSize = headerByteBuffer.getInt(18).toLong()
                 val nameBuffer = ByteArray(nameLen)
                 channel.read(ByteBuffer.wrap(nameBuffer))
