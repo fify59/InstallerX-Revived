@@ -37,7 +37,6 @@ public class KeyStoreManager {
         const val ACTION_KS_INTERACTION_BEGIN = "com.rosan.installer.x.revived.action.KS_INTERACTION_BEGIN"
         const val ACTION_KS_INTERACTION_END = "com.rosan.installer.x.revived.action.KS_INTERACTION_END"
 
-        @SuppressLint("StaticFieldLeak")
         private var sInstance: KeyStoreManager? = null
 
         public synchronized fun getInstance(): KeyStoreManager {
