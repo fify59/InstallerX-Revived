@@ -34,14 +34,12 @@ public class Signer {
         const val TAG = "Signer"
         const val SIGNING_KEY_ALIAS = "signing_key"
 
-        public fun canSign(): Boolean {
-            return try {
-                // In order to sign an APK, a signing key must be inserted
-                KeyStoreManager.getInstance().containsKey(SIGNING_KEY_ALIAS)
-            } catch (e: Exception) {
-                // Signing not configured
-                false
-            }
+        public fun canSign(): Boolean = try {
+            // In order to sign an APK, a signing key must be inserted
+            KeyStoreManager.getInstance().containsKey(SIGNING_KEY_ALIAS)
+        } catch (e: Exception) {
+            // Signing not configured
+            false
         }
 
         /** An APK signed by {@link #signCopy(File, FileCache)}. */
