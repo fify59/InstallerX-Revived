@@ -1,4 +1,5 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
+import org.gradle.api.JavaLanguageVersion
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import java.util.Properties
@@ -18,7 +19,7 @@ android {
 
     java {
         toolchain {
-            languageVersion.set(21)
+            languageVersion = JavaLanguageVersion.of(21)
         }
     }
 
