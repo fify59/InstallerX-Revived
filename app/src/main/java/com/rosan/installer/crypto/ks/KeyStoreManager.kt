@@ -54,29 +54,6 @@ public class KeyStoreManager {
         public synchronized fun clearCachedKeyStore() {
             sInstance = null
         }
-
-        /**
-         * Whether an encrypted recovery password has been stored, regardless of whether it can
-         * currently be decrypted. Used to distinguish a genuine first run from a device whose
-         * keystore lost the local protection key — the latter must never silently
-         * generate a fresh password over the one the user already saved.
-         */
-        public fun hasSavedKeyStorePassword(): Boolean {
-            return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
-        }
-
-        public fun hasKeyStorePassword(): Boolean {
-            return try {
-                reloadKeyStore()
-                true
-            } catch (e: Exception) {
-                false
-            }
-        }
-
-        public fun hasKeyStore(): Boolean {
-            return AM_KEYSTORE_FILE.exists()
-        }
     }
 
     private var mContext: Context
@@ -134,6 +111,29 @@ public class KeyStoreManager {
             // If decryption fails, generate a new password
             generateAndStoreNewPassword()
         }
+    }
+
+    /**
+     * Whether an encrypted recovery password has been stored, regardless of whether it can
+     * currently be decrypted. Used to distinguish a genuine first run from a device whose
+     * keystore lost the local protection key — the latter must never silently
+     * generate a fresh password over the one the user already saved.
+     */
+    public fun hasSavedKeyStorePassword(): Boolean {
+        return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
+    }
+
+    public fun hasKeyStorePassword(): Boolean {
+        return try {
+            reloadKeyStore()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    public fun hasKeyStore(): Boolean {
+        return AM_KEYSTORE_FILE.exists()
     }
 
     /**

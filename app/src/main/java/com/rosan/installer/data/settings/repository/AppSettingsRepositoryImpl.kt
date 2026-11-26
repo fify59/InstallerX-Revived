@@ -156,6 +156,7 @@ class AppSettingsRepositoryImpl(
             installerSignApk = prefs[AppDataStore.INSTALLER_SIGN_APK] ?: false,
             installerSigSchemes = prefs[AppDataStore.INSTALLER_SIG_SCHEMES] ?: SigSchemes.DEFAULT_SCHEMES,
             installerZipAlign = prefs[AppDataStore.INSTALLER_ZIP_ALIGN] ?: true,
+            enableFileLogging = prefs[AppDataStore.ENABLE_FILE_LOGGING] ?: false,
             // UI State
             themeMode = ThemeMode.fromValueOrDefault(prefs[AppDataStore.THEME_MODE] ?: ThemeMode.SYSTEM.name),
             useAmoled = prefs[AppDataStore.THEME_USE_AMOLED] ?: false,
