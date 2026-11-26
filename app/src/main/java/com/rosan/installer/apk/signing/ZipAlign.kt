@@ -12,6 +12,7 @@ import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
+import kotlin.math.min
 
 public class ZipAlign {
     public companion object {

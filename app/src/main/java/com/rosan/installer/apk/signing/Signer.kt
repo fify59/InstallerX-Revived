@@ -11,12 +11,11 @@ import androidx.annotation.WorkerThread
 import com.android.apksig.ApkSigner
 import com.android.apksig.ApkVerifier
 import com.rosan.installer.apk.ApkFile
-import com.rosan.installer.apk.signing.FileCache
-import com.rosan.installer.apk.signing.Prefs
+import com.rosan.installer.self.filecache.FileCache
+import com.rosan.installer.settings.Prefs
 import com.rosan.installer.crypto.ks.KeyStoreManager
 import com.rosan.installer.logs.Log
 import com.rosan.installer.utils.DigestUtils
-import com.rosan.installer.utils.HexEncoding
 import com.rosan.installer.utils.Utils
 import com.rosan.installer.apk.signing.ZipAlign
 import java.io.File
@@ -198,7 +197,7 @@ public class Signer {
 
         private fun log(str: String, bytes: ByteArray) {
             Log.i(TAG, str)
-            Log.w(TAG, HexEncoding.encodeToString(bytes))
+            Log.w(TAG, aosp.libcore.util.HexEncoding.encodeToString(bytes))
         }
     }
 
