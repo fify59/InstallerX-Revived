@@ -167,7 +167,7 @@ public class ZipAlign {
             
             // Search for EOCD signature (0x06054b50) from end
             for (i in searchBufferSize - 22 downTo 0) {
-                if (searchBuffer[i].toInt() == 0x50 && searchBuffer[i + 1].toInt() == 0x4b && 
+                if ((searchBuffer[i].toInt() and 0xFF) == 0x50 && searchBuffer[i + 1].toInt() == 0x4b && 
                     searchBuffer[i + 2].toInt() == 0x05 && searchBuffer[i + 3].toInt() == 0x06) {
                     val buffer = ByteBuffer.wrap(searchBuffer, i, 22).order(ByteOrder.LITTLE_ENDIAN)
                     val centralDirSize = buffer.getInt(12).toLong()

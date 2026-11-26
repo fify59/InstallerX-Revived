@@ -54,7 +54,7 @@ public class Signer {
         )
 
         /**
-         * Signs a copy of {@code in} with this app's key, using the schemes and alignment set in
+         * Signs a copy of {@code input} with this app's key, using the schemes and alignment set in
          * Settings, and verifies it: what the installer does to an APK it was told to sign.
          *
          * @param cache holds the signed copy and its v4 signature
@@ -62,7 +62,7 @@ public class Signer {
          */
         @WorkerThread
         @NonNull
-        public fun signCopy(@NonNull in: File, @NonNull cache: FileCache, sigSchemes: SigSchemes, zipAlign: Boolean): SignedApk {
+        public fun signCopy(@NonNull `in`: File, @NonNull cache: FileCache, sigSchemes: SigSchemes, zipAlign: Boolean): SignedApk {
             val out = cache.createCachedFile("apk")
             try {
                 val signer = getInstance(sigSchemes)
@@ -71,10 +71,10 @@ public class Signer {
                     idsig = cache.createCachedFile("idsig")
                     signer.setIdsigFile(idsig!!)
                 }
-                if (signer.sign(in, out, -1, zipAlign) && verify(sigSchemes, out, idsig)) {
+                if (signer.sign(`in`, out, -1, zipAlign) && verify(sigSchemes, out, idsig)) {
                     return SignedApk(out, idsig)
                 }
-                throw IOException("Failed to sign $in")
+                throw IOException("Failed to sign $`in`")
             } catch (e: SignatureException) {
                 throw IOException(e)
             } catch (e: RuntimeException) {
@@ -184,9 +184,9 @@ public class Signer {
         }
 
         private fun logEncoded(charSequence: CharSequence, bytes: ByteArray) {
-            log(charSequence + " - SHA-256: ", DigestUtils.getDigest(DigestUtils.SHA_256, bytes))
-            log(charSequence + " - SHA-1: ", DigestUtils.getDigest(DigestUtils.SHA_1, bytes))
-            log(charSequence + " - MD5: ", DigestUtils.getDigest(DigestUtils.MD5, bytes))
+            log(charSequence.toString() + " - SHA-256: ", DigestUtils.getDigest(DigestUtils.SHA_256, bytes))
+            log(charSequence.toString() + " - SHA-1: ", DigestUtils.getDigest(DigestUtils.SHA_1, bytes))
+            log(charSequence.toString() + " - MD5: ", DigestUtils.getDigest(DigestUtils.MD5, bytes))
         }
 
         private fun log(str: String, bytes: ByteArray) {
@@ -230,7 +230,7 @@ public class Signer {
 
     @WorkerThread
     public fun sign(
-        @NonNull in: File,
+        @NonNull `in`: File,
         @NonNull out: File,
         minSdk: Int,
         alignFileSize: Boolean,
@@ -238,7 +238,7 @@ public class Signer {
         val signerConfig = ApkSigner.SignerConfig.Builder("CERT",
             mPrivateKey, Collections.singletonList(mCertificate)).build()
         val builder = ApkSigner.Builder(Collections.singletonList(signerConfig))
-        builder.setInputApk(in)
+        builder.setInputApk(`in`)
         builder.setOutputApk(out)
         builder.setCreatedBy("InstallerX")
         builder.setAlignFileSize(alignFileSize)
@@ -256,10 +256,10 @@ public class Signer {
             builder.setV4SigningEnabled(false)
         }
         val signer = builder.build()
-        Log.i(TAG, "SignApk: $in")
+        Log.i(TAG, "SignApk: $`in`")
         try {
-            if (alignFileSize && !ZipAlign.verify(in, ZipAlign.ALIGNMENT_4, true)) {
-                ZipAlign.align(in, ZipAlign.ALIGNMENT_4, true)
+            if (alignFileSize && !ZipAlign.verify(`in`, ZipAlign.ALIGNMENT_4, true)) {
+                ZipAlign.align(`in`, ZipAlign.ALIGNMENT_4, true)
             }
             signer.sign()
             Log.i(TAG, "The signature is complete and the output file is $out")

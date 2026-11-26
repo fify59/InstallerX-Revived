@@ -22,7 +22,11 @@ public class KeyPair(
 
     public fun destroy() {
         if (mPrivateKey is Destroyable) {
-            (mPrivateKey as Destroyable).destroy()
+            try {
+                (mPrivateKey as Destroyable).destroy()
+            } catch (e: Exception) {
+                // Ignore destruction failures
+            }
         }
     }
 }

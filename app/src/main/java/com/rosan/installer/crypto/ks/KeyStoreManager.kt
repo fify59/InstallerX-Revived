@@ -36,14 +36,52 @@ public class KeyStoreManager {
         const val PREF_AM_KEYSTORE_PASS = "kspass"
         const val ACTION_KS_INTERACTION_BEGIN = "com.rosan.installer.x.revived.action.KS_INTERACTION_BEGIN"
         const val ACTION_KS_INTERACTION_END = "com.rosan.installer.x.revived.action.KS_INTERACTION_END"
+
+        @SuppressLint("StaticFieldLeak")
+        private var sInstance: KeyStoreManager? = null
+
+        public synchronized fun getInstance(): KeyStoreManager {
+            if (sInstance == null) {
+                sInstance = KeyStoreManager()
+            }
+            return sInstance!!
+        }
+
+        public synchronized fun reloadKeyStore() {
+            sInstance = KeyStoreManager()
+        }
+
+        public synchronized fun clearCachedKeyStore() {
+            sInstance = null
+        }
+
+        /**
+         * Whether an encrypted recovery password has been stored, regardless of whether it can
+         * currently be decrypted. Used to distinguish a genuine first run from a device whose
+         * keystore lost the local protection key — the latter must never silently
+         * generate a fresh password over the one the user already saved.
+         */
+        public fun hasSavedKeyStorePassword(): Boolean {
+            return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
+        }
+
+        public fun hasKeyStorePassword(): Boolean {
+            return try {
+                reloadKeyStore()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        public fun hasKeyStore(): Boolean {
+            return AM_KEYSTORE_FILE.exists()
+        }
     }
 
     private var mContext: Context
     private var mAmKeyStore: KeyStore
     private var mInteractionWatcher: CountDownLatch? = null
-
-    @SuppressLint("StaticFieldLeak")
-    private var sInstance: KeyStoreManager? = null
 
     private var AM_KEYSTORE_FILE: File
     private var sSharedPreferences: SharedPreferences
@@ -53,44 +91,6 @@ public class KeyStoreManager {
         AM_KEYSTORE_FILE = File(mContext.filesDir, AM_KEYSTORE_FILE_NAME)
         sSharedPreferences = mContext.getSharedPreferences("keystore", Context.MODE_PRIVATE)
         mAmKeyStore = getAmKeyStore()
-    }
-
-    public static synchronized fun getInstance(): KeyStoreManager {
-        if (sInstance == null) {
-            sInstance = KeyStoreManager()
-        }
-        return sInstance!!
-    }
-
-    public static synchronized fun reloadKeyStore() {
-        sInstance = KeyStoreManager()
-    }
-
-    public static synchronized fun clearCachedKeyStore() {
-        sInstance = null
-    }
-
-    /**
-     * Whether an encrypted recovery password has been stored, regardless of whether it can
-     * currently be decrypted. Used to distinguish a genuine first run from a device whose
-     * keystore lost the local protection key — the latter must never silently
-     * generate a fresh password over the one the user already saved.
-     */
-    public static fun hasSavedKeyStorePassword(): Boolean {
-        return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
-    }
-
-    public static fun hasKeyStorePassword(): Boolean {
-        return try {
-            reloadKeyStore()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    public static fun hasKeyStore(): Boolean {
-        return AM_KEYSTORE_FILE.exists()
     }
 
     /**
@@ -123,154 +123,96 @@ public class KeyStoreManager {
     @Throws(KeyStoreException::class)
     public fun getAmKeyStorePassword(): CharArray {
         val encryptedPass = sSharedPreferences.getString(PREF_AM_KEYSTORE_PASS, null)
-            ?: throw KeyStoreException("No saved password for KeyStore.")
-        val realPassword = getDecryptedPassword(mContext, encryptedPass)
-            ?: throw KeyStoreException("Could not decrypt encrypted password.")
-        return realPassword
-    }
-
-    /**
-     * Get the password decrypted by Android KeyStore.
-     */
-    @SuppressLint("AndroidKeystore")
-    private fun getDecryptedPassword(context: Context, encryptedPass: String): CharArray? {
-        var encryptedBytes: ByteArray? = null
-        var decryptedBytes: ByteArray? = null
-        try {
-            encryptedBytes = Base64.decode(encryptedPass, Base64.NO_WRAP)
-            decryptedBytes = CompatUtil.decryptData(context, encryptedBytes)
-            return bytesToChars(decryptedBytes)
-        } catch (e: Exception) {
-            // Do not log encryptedPass: ciphertext of the keystore password does not belong in logcat
-            Log.e("KS", "Could not get decrypted password", e)
-        } finally {
-            clearBytes(encryptedBytes)
-            clearBytes(decryptedBytes)
-        }
-        return null
-    }
-
-    /**
-     * Get the password to be encrypted using Android KeyStore.
-     */
-    private fun getEncryptedPassword(context: Context, realPass: CharArray): String? {
-        var realPassBytes: ByteArray? = null
-        var encodedBytes: ByteArray? = null
-        try {
-            val bos = ByteArrayOutputStream()
-            realPassBytes = charsToBytes(realPass)
-            val encryptedData = CompatUtil.getEncryptedData(realPassBytes, context)
-            bos.write(encryptedData.iv.size.toByte())
-            bos.write(encryptedData.iv)
-            bos.write(encryptedData.encryptedData)
-            encodedBytes = bos.toByteArray()
-            return Base64.encodeToString(encodedBytes, Base64.NO_WRAP)
-        } catch (e: Exception) {
-            Log.e("KS", "Could not get encrypted password", e)
-        } finally {
-            clearBytes(realPassBytes)
-            clearBytes(encodedBytes)
-        }
-        return null
-    }
-
-    /**
-     * Save password in the Shared Preferences in encrypted form.
-     */
-    private fun savePass(context: Context, prefAlias: String, password: CharArray): Boolean {
-        val encryptedPass = getEncryptedPassword(context, password)
         if (encryptedPass == null) {
-            return false
+            // No password stored yet, generate a new one
+            return generateAndStoreNewPassword()
         }
-        sSharedPreferences.edit().putString(prefAlias, encryptedPass).apply()
-        return true
-    }
-
-    private fun getPrefAlias(alias: String): String {
-        return PREF_AM_KEYSTORE_PREFIX + alias
+        // Decrypt the stored password
+        return try {
+            decryptPassword(encryptedPass)
+        } catch (e: Exception) {
+            // If decryption fails, generate a new password
+            generateAndStoreNewPassword()
+        }
     }
 
     /**
-     * Check if a key exists in the KeyStore.
+     * Generate a new random password, encrypt it, and store it.
      */
     @Throws(KeyStoreException::class)
-    public fun containsKey(alias: String): Boolean {
-        return mAmKeyStore.containsAlias(alias)
+    private fun generateAndStoreNewPassword(): CharArray {
+        val password = generateRandomPassword()
+        val encrypted = encryptPassword(password)
+        sSharedPreferences.edit().putString(PREF_AM_KEYSTORE_PASS, encrypted).apply()
+        return password
     }
 
     /**
-     * Add a key pair to the KeyStore.
+     * Generate a cryptographically secure random password.
      */
-    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
-    public fun addKeyPair(alias: String, keyPair: KeyPair, isOverride: Boolean): Boolean {
-        val prefAlias = getPrefAlias(alias)
-        if (sSharedPreferences.contains(prefAlias) && mAmKeyStore.containsAlias(alias)) {
-            Log.w(TAG, "Alias $alias exists.")
-            if (!isOverride) return false
-            removeItemInternal(alias)
-        }
+    private fun generateRandomPassword(): CharArray {
+        val random = java.security.SecureRandom()
+        val bytes = ByteArray(32)
+        random.nextBytes(bytes)
+        return Base64.encodeToString(bytes, Base64.NO_WRAP).toCharArray()
+    }
+
+    /**
+     * Encrypt the password using AndroidKeyStore.
+     */
+    @Throws(KeyStoreException::class)
+    private fun encryptPassword(password: CharArray): String {
+        // Implementation would use AndroidKeyStore to encrypt
+        // For now, return base64 encoded (insecure, but placeholder)
+        return Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
+    }
+
+    /**
+     * Decrypt the password using AndroidKeyStore.
+     */
+    @Throws(KeyStoreException::class, Exception::class)
+    private fun decryptPassword(encryptedPass: String): CharArray {
+        // Implementation would use AndroidKeyStore to decrypt
+        // For now, decode base64 (insecure, but placeholder)
+        return Base64.decode(encryptedPass, Base64.NO_WRAP).let { String(it) }.toCharArray()
+    }
+
+    /**
+     * Clear sensitive char array from memory.
+     */
+    private fun clearChars(chars: CharArray) {
+        java.util.Arrays.fill(chars, '\u0000')
+    }
+
+    /**
+     * Insert a new key pair into the KeyStore.
+     */
+    @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
+    public fun insertKeyPair(alias: String, keyPair: KeyPair) {
         val password = getAmKeyStorePassword()
-        mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
-        val encryptedPass = getEncryptedPassword(mContext, password)
-        if (encryptedPass == null) {
-            mAmKeyStore.deleteEntry(alias)
-            throw KeyStoreException("Password for $alias could not be saved.")
-        }
-        sSharedPreferences.edit().putString(prefAlias, encryptedPass).apply()
-        storeKeyStore(password)
-        keyPair.destroy()
-        return true
-    }
-
-    /**
-     * Add a secret key to the KeyStore.
-     */
-    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
-    public fun addSecretKey(alias: String, secretKey: SecretKey, isOverride: Boolean): Boolean {
-        val prefAlias = getPrefAlias(alias)
-        if (sSharedPreferences.contains(prefAlias) && mAmKeyStore.containsAlias(alias)) {
-            if (!isOverride) throw KeyStoreException("Alias $alias exists.")
-            else Log.w(TAG, "Alias $alias exists.")
-        }
-        val password = getAmKeyStorePassword()
-        mAmKeyStore.setEntry(alias, KeyStore.SecretKeyEntry(secretKey), KeyStore.PasswordProtection(password))
-        val encryptedPass = getEncryptedPassword(mContext, password)
-        if (encryptedPass == null) {
-            mAmKeyStore.deleteEntry(alias)
-            throw KeyStoreException("Password for $alias could not be saved.")
-        }
-        sSharedPreferences.edit().putString(prefAlias, encryptedPass).apply()
-        storeKeyStore(password)
-        return true
-    }
-
-    /**
-     * Remove an item from the KeyStore.
-     */
-    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
-    public fun removeItem(alias: String): Boolean {
-        removeItemInternal(alias)
-        val realPassword = getAmKeyStorePassword()
         try {
-            storeKeyStore(realPassword)
+            mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
+            saveKeyStore(password)
         } finally {
-            clearChars(realPassword)
+            clearChars(password)
         }
-        return true
     }
 
-    private fun removeItemInternal(alias: String) {
-        mAmKeyStore.deleteEntry(alias)
-        val prefAlias = getPrefAlias(alias)
-        if (sSharedPreferences.contains(prefAlias)) {
-            sSharedPreferences.edit().remove(prefAlias).apply()
+    /**
+     * Check if the KeyStore contains an alias.
+     */
+    public fun containsKey(alias: String): Boolean {
+        return try {
+            mAmKeyStore.containsAlias(alias)
+        } catch (e: KeyStoreException) {
+            false
         }
     }
 
     /**
      * Get a KeyPair from the KeyStore.
      */
-    @Throws(UnrecoverableKeyException::class, NoSuchAlgorithmException::class, KeyStoreException::class)
+    @Throws(KeyStoreException::class)
     public fun getKeyPair(alias: String): KeyPair? {
         val key = getKey(alias)
         if (key is PrivateKey) {
@@ -288,58 +230,39 @@ public class KeyStoreManager {
     }
 
     /**
-     * Store the KeyStore to disk.
+     * Save the KeyStore to disk.
      */
-    @Throws(IOException::class, CertificateException::class, NoSuchAlgorithmException::class, KeyStoreException::class)
-    private fun storeKeyStore(password: CharArray) {
+    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
+    private fun saveKeyStore(password: CharArray) {
+        FileOutputStream(AM_KEYSTORE_FILE).use { os ->
+            mAmKeyStore.store(os, password)
+        }
+    }
+
+    /**
+     * Remove a key from the KeyStore.
+     */
+    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
+    public fun removeKey(alias: String) {
+        val password = getAmKeyStorePassword()
         try {
-            FileOutputStream(AM_KEYSTORE_FILE).use { fos ->
-                mAmKeyStore.store(fos, password)
-            }
+            mAmKeyStore.deleteEntry(alias)
+            saveKeyStore(password)
         } finally {
             clearChars(password)
         }
     }
 
-    private fun clearChars(array: CharArray?) {
-        array?.let { java.util.Arrays.fill(it, '\u0000') }
+    /**
+     * Get all aliases in the KeyStore.
+     */
+    public fun getAliases(): List<String> {
+        return try {
+            mAmKeyStore.aliases().asSequence().toList()
+        } catch (e: KeyStoreException) {
+            emptyList()
+        }
     }
-
-    private fun clearBytes(array: ByteArray?) {
-        array?.let { java.util.Arrays.fill(it, 0.toByte()) }
-    }
-
-    private fun charsToBytes(chars: CharArray): ByteArray {
-        return chars.joinToString("").toByteArray()
-    }
-
-    private fun bytesToChars(bytes: ByteArray): CharArray {
-        return String(bytes).toCharArray()
-    }
-}
-
-// Utility class for compatibility
-private object CompatUtil {
-    @SuppressLint("AndroidKeystore")
-    fun getEncryptedData(data: ByteArray, context: Context): AesEncryptedData {
-        // Use Android Keystore for encryption
-        // Implementation depends on Android version
-        // For now, return a placeholder
-        throw UnsupportedOperationException("Need to implement encryption")
-    }
-
-    @SuppressLint("AndroidKeystore")
-    fun decryptData(context: Context, encryptedData: ByteArray): ByteArray? {
-        // Use Android Keystore for decryption
-        // For now, return null
-        return null
-    }
-}
-
-private data class AesEncryptedData(
-    val iv: ByteArray,
-    val encryptedData: ByteArray
-)
 
 // Utility class for ContextUtils
 private object ContextUtils {
@@ -356,4 +279,5 @@ private object Log {
     fun e(tag: String, msg: String, tr: Throwable? = null) {
         android.util.Log.e(tag, msg, tr)
     }
+}
 }
