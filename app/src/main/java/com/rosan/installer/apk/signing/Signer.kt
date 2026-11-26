@@ -215,10 +215,13 @@ public class Signer {
 
     @NonNull
     private val mPrivateKey: PrivateKey
+
     @NonNull
     private val mCertificate: X509Certificate
+
     @NonNull
     private val mSigSchemes: SigSchemes
+
     @Nullable
     private var mIdsigFile: File? = null
 
@@ -245,8 +248,11 @@ public class Signer {
         minSdk: Int,
         alignFileSize: Boolean,
     ): Boolean {
-        val signerConfig = ApkSigner.SignerConfig.Builder("CERT",
-            mPrivateKey, Collections.singletonList(mCertificate)).build()
+        val signerConfig = ApkSigner.SignerConfig.Builder(
+            "CERT",
+            mPrivateKey,
+            Collections.singletonList(mCertificate),
+        ).build()
         val builder = ApkSigner.Builder(Collections.singletonList(signerConfig))
         builder.setInputApk(`in`)
         builder.setOutputApk(out)
