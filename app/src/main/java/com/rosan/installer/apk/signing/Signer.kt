@@ -12,7 +12,7 @@ import com.android.apksig.ApkSigner
 import com.android.apksig.ApkVerifier
 import com.rosan.installer.apk.ApkFile
 import com.rosan.installer.self.filecache.FileCache
-import com.rosan.installer.settings.Prefs
+
 import com.rosan.installer.crypto.ks.KeyStoreManager
 import com.rosan.installer.logs.Log
 import com.rosan.installer.utils.DigestUtils
@@ -66,10 +66,8 @@ public class Signer {
          */
         @WorkerThread
         @NonNull
-        public fun signCopy(@NonNull in: File, @NonNull cache: FileCache): SignedApk {
+        public fun signCopy(@NonNull in: File, @NonNull cache: FileCache, sigSchemes: SigSchemes, zipAlign: Boolean): SignedApk {
             val out = cache.createCachedFile("apk")
-            val sigSchemes = Prefs.Signing.getSigSchemes()
-            val zipAlign = Prefs.Signing.zipAlign()
             try {
                 val signer = getInstance(sigSchemes)
                 var idsig: File? = null
