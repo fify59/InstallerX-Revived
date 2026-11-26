@@ -4,6 +4,7 @@ package com.rosan.installer.data.settings.repository
 
 import android.os.Build
 import androidx.datastore.preferences.core.Preferences
+import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.core.env.AppConfig
 import com.rosan.installer.data.settings.local.datastore.AppDataStore
 import com.rosan.installer.domain.device.provider.DeviceCapabilityProvider
@@ -13,7 +14,6 @@ import com.rosan.installer.domain.settings.model.config.Authorizer
 import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
 import com.rosan.installer.domain.settings.model.config.NetworkSourceMode
 import com.rosan.installer.domain.settings.model.preferences.AppPreferences
-import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.domain.settings.model.preferences.GithubUpdateChannel
 import com.rosan.installer.domain.settings.model.preferences.HttpProfile
 import com.rosan.installer.domain.settings.model.preferences.NetworkAppNameSource

@@ -3,6 +3,7 @@
 package com.rosan.installer.apk.signing
 
 import android.os.Build
+import android.util.Log
 
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
@@ -10,18 +11,14 @@ import androidx.annotation.WorkerThread
 
 import com.android.apksig.ApkSigner
 import com.android.apksig.ApkVerifier
-import com.rosan.installer.apk.ApkFile
 import com.rosan.installer.self.filecache.FileCache
-
 import com.rosan.installer.crypto.ks.KeyStoreManager
-import com.rosan.installer.logs.Log
-import com.rosan.installer.utils.DigestUtils
-import com.rosan.installer.utils.Utils
+import com.rosan.installer.util.DigestUtils
+import com.rosan.installer.util.Utils
 import com.rosan.installer.apk.signing.ZipAlign
 import java.io.File
 import java.io.IOException
 import java.security.KeyStoreException
-import java.security.Principal
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureException
@@ -33,7 +30,6 @@ import java.security.interfaces.ECKey
 import java.security.interfaces.RSAKey
 import java.util.Collections
 import java.util.List
-import aosp.libcore.util.HexEncoding
 
 public class Signer {
     public companion object {
@@ -195,7 +191,15 @@ public class Signer {
 
         private fun log(str: String, bytes: ByteArray) {
             Log.i(TAG, str)
-            Log.w(TAG, aosp.libcore.util.HexEncoding.encodeToString(bytes))
+            Log.w(TAG, bytesToHex(bytes))
+        }
+
+        private fun bytesToHex(bytes: ByteArray): String {
+            val sb = StringBuilder(bytes.size * 2)
+            for (b in bytes) {
+                sb.append(String.format("%02x", b))
+            }
+            return sb.toString()
         }
     }
 

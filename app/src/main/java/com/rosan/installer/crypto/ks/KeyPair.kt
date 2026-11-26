@@ -5,6 +5,7 @@ package com.rosan.installer.crypto.ks
 import java.security.PrivateKey
 import java.security.cert.Certificate
 import java.security.cert.X509Certificate
+import java.security.Destroyable
 
 public class KeyPair(
     private val mPrivateKey: PrivateKey,
@@ -20,12 +21,8 @@ public class KeyPair(
         get() = mCertificate as X509Certificate
 
     public fun destroy() {
-        if (mPrivateKey is java.security.interfaces.DSADestroyable) {
-            (mPrivateKey as java.security.interfaces.DSADestroyable).destroy()
-        } else if (mPrivateKey is java.security.interfaces.RSADestroyable) {
-            (mPrivateKey as java.security.interfaces.RSADestroyable).destroy()
-        } else if (mPrivateKey is java.security.interfaces.ECDestroyable) {
-            (mPrivateKey as java.security.interfaces.ECDestroyable).destroy()
+        if (mPrivateKey is Destroyable) {
+            (mPrivateKey as Destroyable).destroy()
         }
     }
 }
