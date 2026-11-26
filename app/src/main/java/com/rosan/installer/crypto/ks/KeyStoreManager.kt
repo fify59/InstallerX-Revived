@@ -109,7 +109,7 @@ public class KeyStoreManager {
             decryptPassword(encryptedPass)
         } catch (e: Exception) {
             // If decryption fails, generate a new password
-            generateAndStoreNewPassword()
+            return generateAndStoreNewPassword()
         }
     }
 
