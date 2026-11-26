@@ -210,7 +210,7 @@ public class ZipAlign {
                     headerSize = headerSize.toLong(),
                     dataOffset = dataOffset,
                     dataSize = compressedSize,
-                    name = name,
+                    name = name
                 ))
             }
             return headers
