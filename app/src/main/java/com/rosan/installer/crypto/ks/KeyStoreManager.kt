@@ -280,4 +280,3 @@ private object Log {
         android.util.Log.e(tag, msg, tr)
     }
 }
-}
