@@ -14,6 +14,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charsets
 import java.security.Key
 import java.security.KeyStore
 import java.security.KeyStoreException
@@ -43,14 +44,16 @@ public class KeyStoreManager {
         @SuppressLint("StaticFieldLeak")
         private var sInstance: KeyStoreManager? = null
 
-        @Synchronized fun getInstance(context: Context): KeyStoreManager =
-            sInstance ?: KeyStoreManager(context.applicationContext).also { sInstance = it }
+        @Synchronized
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager(context.applicationContext).also { sInstance = it }
 
-        @Synchronized fun reloadKeyStore() {
+        @Synchronized
+        fun reloadKeyStore() {
             sInstance = KeyStoreManager()
         }
 
-        @Synchronized fun clearCachedKeyStore() {
+        @Synchronized
+        fun clearCachedKeyStore() {
             sInstance = null
         }
     }
@@ -197,7 +200,7 @@ public class KeyStoreManager {
 
         // Insert into our BKS keystore
         val keyPair = KeyPair(privateKey, certChain[0] as X509Certificate)
-        insertKeyPair(alias, keyPair)
+        insertKeyPairInternal(alias, keyPair)
 
         Log.i(TAG, "Successfully imported key from PKCS12 as '$alias'")
         return true
