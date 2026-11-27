@@ -13,20 +13,16 @@ public object DigestUtils {
     /**
      * Get the digest of the given data using the specified algorithm.
      */
-    public fun getDigest(algorithm: String, data: ByteArray): ByteArray {
-        return try {
-            MessageDigest.getInstance(algorithm).digest(data)
-        } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException("Algorithm $algorithm not available", e)
-        }
+    public fun getDigest(algorithm: String, data: ByteArray): ByteArray = try {
+        MessageDigest.getInstance(algorithm).digest(data)
+    } catch (e: NoSuchAlgorithmException) {
+        throw RuntimeException("Algorithm $algorithm not available", e)
     }
 
     /**
      * Get the hex digest of the given data using the specified algorithm.
      */
-    public fun getHexDigest(algorithm: String, data: ByteArray): String {
-        return bytesToHex(getDigest(algorithm, data))
-    }
+    public fun getHexDigest(algorithm: String, data: ByteArray): String = bytesToHex(getDigest(algorithm, data))
 
     private fun bytesToHex(bytes: ByteArray): String {
         val sb = StringBuilder(bytes.size * 2)
