@@ -105,22 +105,16 @@ public class KeyStoreManager {
         }
     }
 
-    public fun hasSavedKeyStorePassword(): Boolean =
-        return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
+    public fun hasSavedKeyStorePassword(): Boolean = sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
+
+    public fun hasKeyStorePassword(): Boolean = try {
+        reloadKeyStore()
+        true
+    } catch (e: Exception) {
+        false
     }
 
-    public fun hasKeyStorePassword(): Boolean =
-        return try {
-            reloadKeyStore()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    public fun hasKeyStore(): Boolean =
-        return mKeyStoreFile.exists()
-    }
+    public fun hasKeyStore(): Boolean = mKeyStoreFile.exists()
 
     @Throws(KeyStoreException::class)
     private fun generateAndStoreNewPassword(): CharArray {
@@ -130,12 +124,7 @@ public class KeyStoreManager {
         return password
     }
 
-    private fun generateRandomPassword(): CharArray =
-        val random = java.security.SecureRandom()
-        val bytes = ByteArray(32)
-        random.nextBytes(bytes)
-        return Base64.encodeToString(bytes, Base64.NO_WRAP).toCharArray()
-    }
+    private fun generateRandomPassword(): CharArray = java.security.SecureRandom().also { it.nextBytes(ByteArray(32)) }.let { Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP).toCharArray() }
 
     @Throws(KeyStoreException::class)
     private fun encryptPassword(password: CharArray): String = Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
@@ -156,12 +145,10 @@ public class KeyStoreManager {
         }
     }
 
-    public fun containsKey(alias: String): Boolean =
-        return try {
-            mAmKeyStore.containsAlias(alias)
-        } catch (e: KeyStoreException) {
-            false
-        }
+    public fun containsKey(alias: String): Boolean = try {
+        mAmKeyStore.containsAlias(alias)
+    } catch (e: KeyStoreException) {
+        false
     }
 
     @Throws(KeyStoreException::class)
@@ -202,12 +189,10 @@ public class KeyStoreManager {
         }
     }
 
-    public fun getAliases(): List<String> {
-        return try {
-            mAmKeyStore.aliases().asSequence().toList()
-        } catch (e: KeyStoreException) {
-            emptyList()
-        }
+    public fun getAliases(): List<String> = try {
+        mAmKeyStore.aliases().asSequence().toList()
+    } catch (e: KeyStoreException) {
+        emptyList()
     }
 
     private object ContextUtils {
