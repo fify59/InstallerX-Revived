@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.security.KeyStore
 import java.security.KeyStoreException
@@ -129,11 +129,11 @@ public class KeyStoreManager {
 
     @Throws(KeyStoreException::class)
     private fun encryptPassword(password: CharArray): String =
-        Base64.encodeToString(password.concatToString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+        Base64.encodeToString(password.concatToString().toByteArray(StandardCharsets.UTF_8), Base64.NO_WRAP)
 
     @Throws(KeyStoreException::class, Exception::class)
     private fun decryptPassword(encryptedPass: String): CharArray =
-        String(Base64.decode(encryptedPass, Base64.NO_WRAP), Charsets.UTF_8).toCharArray()
+        String(Base64.decode(encryptedPass, Base64.NO_WRAP), StandardCharsets.UTF_8).toCharArray()
 
     private fun clearChars(chars: CharArray) = java.util.Arrays.fill(chars, '\u0000')
 
