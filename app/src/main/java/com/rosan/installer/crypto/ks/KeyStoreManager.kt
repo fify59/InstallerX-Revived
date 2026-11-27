@@ -138,18 +138,12 @@ public class KeyStoreManager {
     }
 
     @Throws(KeyStoreException::class)
-    private fun encryptPassword(password: CharArray): String {
-        return Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
-    }
+    private fun encryptPassword(password: CharArray): String = Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
 
     @Throws(KeyStoreException::class, Exception::class)
-    private fun decryptPassword(encryptedPass: String): CharArray {
-        return Base64.decode(encryptedPass, Base64.NO_WRAP).let { String(it) }.toCharArray()
-    }
+    private fun decryptPassword(encryptedPass: String): CharArray = Base64.decode(encryptedPass, Base64.NO_WRAP).let { String(it) }.toCharArray()
 
-    private fun clearChars(chars: CharArray) {
-        java.util.Arrays.fill(chars, '\u0000')
-    }
+    private fun clearChars(chars: CharArray) = java.util.Arrays.fill(chars, '\u0000')
 
     @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
     public fun insertKeyPair(alias: String, keyPair: KeyPair) {
