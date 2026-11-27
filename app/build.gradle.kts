@@ -15,6 +15,11 @@ plugins {
 android {
     namespace = "com.rosan.installer"
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     val properties = Properties()
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     if (keystorePropertiesFile.exists()) {
@@ -204,6 +209,8 @@ dependencies {
 
     implementation(libs.commons.compress)
     implementation(libs.xz)
+    implementation(libs.bouncycastle.prov)
+    implementation(libs.bouncycastle.pkix)
     implementation(libs.androidx.profileinstaller)
     implementation(files(apksignerJar))
     "baselineProfile"(project(":baselineprofile"))

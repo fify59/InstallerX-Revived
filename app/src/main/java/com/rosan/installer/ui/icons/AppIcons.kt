@@ -102,9 +102,6 @@ import com.rosan.installer.R
  * Manages all icons in a single object
  */
 object AppIcons {
-    // Material Icons are used here as an example
-    // You need to add the 'androidx.compose.material:material-icons-extended' dependency to use all icons
-    // Or replace them with your own icon resources
     val Android = Icons.TwoTone.Android
     val Check = Icons.Rounded.Check
     val Active = Icons.Rounded.CheckCircleOutline
@@ -137,32 +134,23 @@ object AppIcons {
     val OpenSourceLicense = Icons.TwoTone.Copyright
     val Blur = Icons.TwoTone.BlurOn
 
-    // --- Navigation icons set ---
     val RoomPreferences = Icons.TwoTone.RoomPreferences
     val SettingsSuggest = Icons.TwoTone.SettingsSuggest
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
-    // --- Navigation icons end ---
 
-    // --- Authorizer icons set ---
     val None = Icons.TwoTone.DoNotDisturbOn
     val Root = Icons.TwoTone.Tag
-    val Shizuku = null // Shizuku icon
-    val Dhizuku = null // Dhizuku icon
+    val Shizuku = null
+    val Dhizuku = null
     val Customize = Icons.TwoTone.Settings
-    // --- Authorizer icons end ---
 
-    // --- Installation mode icons set ---
     val Dialog = Icons.TwoTone.WebAsset
     val AutoDialog = Icons.TwoTone.SmartDisplay
     val Notification = Icons.TwoTone.Notifications
     val NotificationDisabled = Icons.TwoTone.NotificationsOff
     val AutoNotification = Icons.TwoTone.NotificationsActive
-
-    // val Ignore = Icons.Outlined.NotInterested
     val Timer = Icons.TwoTone.Timer
-    // --- Installation mode icons end ---
 
-    // --- Settings icons set ---
     val Authorizer = Icons.TwoTone.Memory
     val SingleLineSettingIcon = Icons.TwoTone.Compress
     val MultiLineSettingIcon = Icons.TwoTone.Expand
@@ -190,9 +178,11 @@ object AppIcons {
     val Glow = Icons.TwoTone.Flare
     val PredictiveBack = Icons.TwoTone.Animation
     val PredictiveBackDirection = Icons.TwoTone.SwapHoriz
-    // --- Settings icons end ---
 
-    // --- Profile pkg icons set ---
+    val Signature = Icons.TwoTone.VerifiedUser
+    val ZipAlign = Icons.TwoTone.Compress
+    val SigSchemes = Icons.TwoTone.LibraryAddCheck
+
     val Toast = Icons.TwoTone.CallToAction
     val InstallUser = Icons.TwoTone.AccountCircle
     val InstallPackageSource = Icons.TwoTone.Source
@@ -210,38 +200,21 @@ object AppIcons {
 
     val InstallSplitChooseAll = Icons.AutoMirrored.TwoTone.PlaylistAdd
     val InstallApkChooseAll = Icons.AutoMirrored.Outlined.PlaylistAddCheck
-    // --- End ---
 
-    // --- Arrow icons set ---
-    // Solid triangle small arrow
     val ArrowDropDownFilled = Icons.TwoTone.ArrowDropDown
     val ArrowRight = Icons.AutoMirrored.TwoTone.ArrowRight
-
-    // Arrow for DropDown
     val ArrowDropDown = Icons.TwoTone.KeyboardArrowDown
-    // Not needed since rotation animation is handled in the UI
-    // val ArrowDropUp = Icons.TwoTone.KeyboardArrowUp
-
     val ArrowUp = Icons.TwoTone.ArrowUpward
     val ArrowIndicator = Icons.AutoMirrored.Rounded.ArrowForward
-    // --- Arrow end ---
 
-    // --- Hourglass icons set ---
     val Pausing = Icons.TwoTone.HourglassDisabled
     val Working = Icons.TwoTone.HourglassEmpty
-    // --- Hourglass icons end ---
 
-    // --- Menu icons set ---
     val Menu = Icons.Filled.Menu
     val MenuOpen = Icons.AutoMirrored.TwoTone.MenuOpen
     val MoreVert = Icons.TwoTone.MoreVert
     val DragHandle = R.drawable.ic_navigation_rearrange
-    // --- Menu icons end ---
 
-    // --- Permission icons set ---
     val Permission = Icons.TwoTone.PermDeviceInformation
-    // --- Permission icons end ---
-
-    // Lab Icons
     val InstallRequester = Icons.AutoMirrored.TwoTone.FactCheck
 }

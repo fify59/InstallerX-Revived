@@ -24,4 +24,9 @@ data class InstallerSettingsState(
     val managedBlacklistPackages: List<NamedPackage> = emptyList(),
     val managedSharedUserIdBlacklist: List<SharedUid> = emptyList(),
     val managedSharedUserIdExemptedPackages: List<NamedPackage> = emptyList(),
+    // --- APK Signing ---
+    val installerSignApk: Boolean = false,
+    val installerSigSchemes: Int = 3,
+    // V1 + V2 by default
+    val installerZipAlign: Boolean = true,
 )

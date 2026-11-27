@@ -8,6 +8,7 @@ import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
 import com.rosan.installer.domain.settings.provider.SystemEnvProvider
 import com.rosan.installer.domain.settings.repository.AppSettingsRepository
 import com.rosan.installer.domain.settings.repository.BooleanSetting
+import com.rosan.installer.domain.settings.repository.IntSetting
 import com.rosan.installer.domain.settings.repository.NamedPackageListSetting
 import com.rosan.installer.domain.settings.repository.SharedUidListSetting
 import com.rosan.installer.domain.settings.repository.StringSetting
@@ -45,6 +46,10 @@ class InstallerSettingsViewModel(
             managedBlacklistPackages = prefs.managedBlacklistPackages,
             managedSharedUserIdBlacklist = prefs.managedSharedUserIdBlacklist,
             managedSharedUserIdExemptedPackages = prefs.managedSharedUserIdExemptedPackages,
+            // --- APK Signing ---
+            installerSignApk = prefs.installerSignApk,
+            installerSigSchemes = prefs.installerSigSchemes,
+            installerZipAlign = prefs.installerZipAlign,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -67,6 +72,28 @@ class InstallerSettingsViewModel(
                 updateSetting(
                     BooleanSetting.DialogShowOppoSpecial,
                     action.show,
+                )
+            }
+
+            // --- APK Signing ---
+            is InstallerSettingsAction.ChangeInstallerSignApk -> viewModelScope.launch {
+                updateSetting(
+                    BooleanSetting.InstallerSignApk,
+                    action.sign,
+                )
+            }
+
+            is InstallerSettingsAction.ChangeInstallerSigSchemes -> viewModelScope.launch {
+                updateSetting(
+                    IntSetting.InstallerSigSchemes,
+                    action.schemes,
+                )
+            }
+
+            is InstallerSettingsAction.ChangeInstallerZipAlign -> viewModelScope.launch {
+                updateSetting(
+                    BooleanSetting.InstallerZipAlign,
+                    action.align,
                 )
             }
 

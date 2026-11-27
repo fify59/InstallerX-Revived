@@ -192,6 +192,14 @@ class AppDataStore(private val dataStore: DataStore<Preferences>, private val js
         val LAB_TRY_DIFFERENT_ARCHITECTURE =
             register(booleanPreferencesKey("lab_try_different_architecture"), PreferenceValueType.BOOLEAN)
 
+        // APK Signing
+        val INSTALLER_SIGN_APK =
+            register(booleanPreferencesKey("installer_sign_apk"), PreferenceValueType.BOOLEAN)
+        val INSTALLER_SIG_SCHEMES =
+            register(intPreferencesKey("installer_sig_schemes"), PreferenceValueType.INT)
+        val INSTALLER_ZIP_ALIGN =
+            register(booleanPreferencesKey("installer_zip_align"), PreferenceValueType.BOOLEAN)
+
         // Network
         val ALLOW_INTERNET_ACCESS = register(booleanPreferencesKey("allow_internet_access"), PreferenceValueType.BOOLEAN)
         val NETWORK_SOURCE_MODE = register(stringPreferencesKey("network_source_mode"), PreferenceValueType.STRING)

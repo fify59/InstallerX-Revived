@@ -4,6 +4,7 @@ package com.rosan.installer.data.settings.repository
 
 import android.os.Build
 import androidx.datastore.preferences.core.Preferences
+import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.core.env.AppConfig
 import com.rosan.installer.data.settings.local.datastore.AppDataStore
 import com.rosan.installer.domain.device.provider.DeviceCapabilityProvider
@@ -152,7 +153,10 @@ class AppSettingsRepositoryImpl(
             labShizukuNonAdbInstall = prefs[AppDataStore.LAB_SHIZUKU_NON_ADB_INSTALL] ?: false,
             labEnableAbiOverride = prefs[AppDataStore.LAB_ENABLE_ABI_OVERRIDE] ?: false,
             labTryDifferentArchitecture = prefs[AppDataStore.LAB_TRY_DIFFERENT_ARCHITECTURE] ?: false,
-            enableFileLogging = prefs[AppDataStore.ENABLE_FILE_LOGGING] ?: true,
+            installerSignApk = prefs[AppDataStore.INSTALLER_SIGN_APK] ?: false,
+            installerSigSchemes = prefs[AppDataStore.INSTALLER_SIG_SCHEMES] ?: SigSchemes.DEFAULT_SCHEMES,
+            installerZipAlign = prefs[AppDataStore.INSTALLER_ZIP_ALIGN] ?: true,
+            enableFileLogging = prefs[AppDataStore.ENABLE_FILE_LOGGING] ?: false,
             // UI State
             themeMode = ThemeMode.fromValueOrDefault(prefs[AppDataStore.THEME_MODE] ?: ThemeMode.SYSTEM.name),
             useAmoled = prefs[AppDataStore.THEME_USE_AMOLED] ?: false,
@@ -248,6 +252,7 @@ class AppSettingsRepositoryImpl(
         IntSetting.NotificationSuccessAutoClearSeconds -> AppDataStore.NOTIFICATION_SUCCESS_AUTO_CLEAR_SECONDS
         IntSetting.CloseSessionCountdown -> AppDataStore.CLOSE_SESSION_COUNTDOWN
         IntSetting.UninstallFlags -> AppDataStore.UNINSTALL_FLAGS
+        IntSetting.InstallerSigSchemes -> AppDataStore.INSTALLER_SIG_SCHEMES
     }
 
     private fun booleanKey(setting: BooleanSetting): Preferences.Key<Boolean> = when (setting) {
@@ -365,6 +370,10 @@ class AppSettingsRepositoryImpl(
         BooleanSetting.LabEnableAbiOverride -> AppDataStore.LAB_ENABLE_ABI_OVERRIDE
 
         BooleanSetting.LabTryDifferentArchitecture -> AppDataStore.LAB_TRY_DIFFERENT_ARCHITECTURE
+
+        BooleanSetting.InstallerSignApk -> AppDataStore.INSTALLER_SIGN_APK
+
+        BooleanSetting.InstallerZipAlign -> AppDataStore.INSTALLER_ZIP_ALIGN
 
         BooleanSetting.DetectXposedModule -> AppDataStore.DETECT_XPOSED_MODULE
 

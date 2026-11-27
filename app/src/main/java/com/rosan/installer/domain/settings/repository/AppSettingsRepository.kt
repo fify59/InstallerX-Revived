@@ -33,6 +33,7 @@ enum class IntSetting {
     NotificationSuccessAutoClearSeconds,
     CloseSessionCountdown,
     UninstallFlags,
+    InstallerSigSchemes,
 }
 
 enum class BooleanSetting {
@@ -96,6 +97,8 @@ enum class BooleanSetting {
     QuickOpenLSPosed,
     EnableFileLogging,
     UserSetLSPosedActive,
+    InstallerSignApk,
+    InstallerZipAlign,
 }
 
 enum class NamedPackageListSetting {
