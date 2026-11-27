@@ -70,6 +70,7 @@ import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
 import com.rosan.installer.ui.icons.AppIcons
 import com.rosan.installer.ui.navigation.LocalNavigator
 import com.rosan.installer.ui.navigation.Route
+import com.rosan.installer.ui.page.main.settings.preferred.installer.InstallerSettingsAction
 import com.rosan.installer.ui.page.main.widget.setting.DraggableList
 import com.rosan.installer.ui.page.main.widget.setting.DropDownMenuWidget
 import com.rosan.installer.ui.page.main.widget.setting.ExpressiveBackButton
