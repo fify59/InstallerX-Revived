@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
