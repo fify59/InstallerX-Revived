@@ -45,10 +45,7 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also {
-            it.init(context.applicationContext)
-            sInstance = it
-        }
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also { it.init(context.applicationContext); sInstance = it }
 
         @Synchronized
         fun reloadKeyStore() = sInstance = KeyStoreManager()
@@ -64,10 +61,8 @@ public class KeyStoreManager {
     private var mKeyStoreFile: File? = null
     private var sSharedPreferences: SharedPreferences? = null
 
-    // Parameterless constructor for singleton pattern
     constructor() {}
 
-    // Private initialization method
     private fun init(context: Context) {
         mContext = context
         mKeyStoreFile = File(context.filesDir, AM_KEYSTORE_FILE_NAME)
@@ -182,7 +177,6 @@ public class KeyStoreManager {
             p12InputStream.close()
         }
 
-        // Find the first private key entry
         var keyAlias: String? = null
         val aliases = p12Store.aliases()
         while (aliases.hasMoreElements()) {
@@ -203,7 +197,6 @@ public class KeyStoreManager {
         val certChain = p12Store.getCertificateChain(keyAlias)
             ?: throw KeyStoreException("No certificate chain found in PKCS12")
 
-        // Insert into our BKS keystore
         val keyPair = KeyPair(privateKey, certChain[0] as X509Certificate)
         insertKeyPairInternal(alias, keyPair)
 
