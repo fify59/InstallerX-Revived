@@ -43,14 +43,14 @@ public class FileCache {
     public fun getCachedFile(inputStream: InputStream, prefix: String = "cached"): File {
         val sha256 = computeSHA256(inputStream)
         val cacheFile = File(mCacheDir, "$prefix-$sha256")
-        
+
         if (!cacheFile.exists()) {
             // We need to re-read the stream, but it's already consumed.
             // This is a limitation - the caller should provide the stream again or we cache during first read.
             // For now, we'll throw an exception if the file doesn't exist.
             throw IOException("Cache file not found and stream was consumed: $cacheFile")
         }
-        
+
         return cacheFile
     }
 
@@ -73,13 +73,13 @@ public class FileCache {
         val digest = MessageDigest.getInstance("SHA-256")
         val buffer = ByteArray(8192)
         var bytesRead: Int
-        
+
         // We can't reset a generic InputStream, so we compute while reading
         // The caller must handle re-reading if the stream is needed again
         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
             digest.update(buffer, 0, bytesRead)
         }
-        
+
         return bytesToHex(digest.digest())
     }
 
