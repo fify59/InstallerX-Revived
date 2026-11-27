@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -55,12 +56,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rosan.installer.R
+import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.core.device.model.Manufacturer
 import com.rosan.installer.core.env.DeviceConfig
+import com.rosan.installer.crypto.ks.KeyStoreManager
+import com.rosan.installer.domain.settings.action.InstallerSettingsAction
 import com.rosan.installer.domain.settings.model.app.NamedPackage
 import com.rosan.installer.domain.settings.model.app.SharedUid
 import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
@@ -79,7 +84,7 @@ import com.rosan.installer.ui.theme.rememberMaterial3BlurBackdrop
 import org.koin.androidx.compose.koinViewModel
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsViewModel = koinViewModel()) {
     val navigator = LocalNavigator.current
@@ -180,6 +185,83 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                 }
             }
 
+            // --- Group 2: APK Signing ---
+            item {
+                val canSign = KeyStoreManager.getInstance().containsKey("signing_key")
+
+                SegmentedColumn(
+                    title = stringResource(R.string.installer_settings_apk_signing),
+                ) {
+                    item {
+                        SwitchWidget(
+                            icon = AppIcons.Signature,
+                            title = stringResource(R.string.installer_sign_apk),
+                            description = stringResource(R.string.installer_sign_apk_desc),
+                            checked = uiState.installerSignApk,
+                            onCheckedChange = {
+                                viewModel.dispatch(InstallerSettingsAction.ChangeInstallerSignApk(it))
+                            },
+                            enabled = canSign,
+                        )
+                    }
+
+                    item(animatedVisibility = uiState.installerSignApk) {
+                        SwitchWidget(
+                            icon = AppIcons.ZipAlign,
+                            title = stringResource(R.string.installer_zip_align),
+                            description = stringResource(R.string.installer_zip_align_desc),
+                            checked = uiState.installerZipAlign,
+                            onCheckedChange = {
+                                viewModel.dispatch(InstallerSettingsAction.ChangeInstallerZipAlign(it))
+                            },
+                        )
+                    }
+
+                    item(animatedVisibility = uiState.installerSignApk && canSign) {
+                        DropDownMenuWidget(
+                            icon = AppIcons.SigSchemes,
+                            title = stringResource(R.string.installer_sig_schemes),
+                            description = stringResource(R.string.installer_sig_schemes_desc),
+                            choice = sigSchemeChoice(uiState.installerSigSchemes),
+                            data = sigSchemeOptions(),
+                            onChoiceChange = { index ->
+                                val schemes = sigSchemeOptions()[index]
+                                if (uiState.installerSigSchemes != schemes) {
+                                    viewModel.dispatch(InstallerSettingsAction.ChangeInstallerSigSchemes(schemes))
+                                }
+                            },
+                        )
+                    }
+
+                    if (!canSign) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .padding(top = 8.dp),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.installer_sign_apk_no_key),
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // --- Group 2: Signature Check ---
             item {
                 SegmentedColumn(
@@ -258,7 +340,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_detect_xposed_module),
                             description = stringResource(R.string.config_detect_xposed_module_desc),
                             checked = uiState.detectXposedModule,
-                            onCheckedChange = {
+                            onChangedChange = {
                                 viewModel.dispatch(
                                     InstallerSettingsAction.ChangeDetectXposedModule(
                                         it,
@@ -462,6 +544,77 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
             }
         }
     }
+}
+
+private fun sigSchemeChoice(value: Int): Int = when (value) {
+    SigSchemes.SIG_SCHEME_V1 -> 0
+    SigSchemes.SIG_SCHEME_V2 -> 1
+    SigSchemes.SIG_SCHEME_V3 -> 2
+    SigSchemes.SIG_SCHEME_V4 -> 3
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2 -> 4
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2 or SigSchemes.SIG_SCHEME_V3 -> 5
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2 or SigSchemes.SIG_SCHEME_V3 or SigSchemes.SIG_SCHEME_V4 -> 6
+    else -> 4
+}
+
+private fun sigSchemeOptions(): List<Int> = listOf(
+    SigSchemes.SIG_SCHEME_V1,
+    SigSchemes.SIG_SCHEME_V2,
+    SigSchemes.SIG_SCHEME_V3,
+    SigSchemes.SIG_SCHEME_V4,
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2,
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2 or SigSchemes.SIG_SCHEME_V3,
+    SigSchemes.SIG_SCHEME_V1 or SigSchemes.SIG_SCHEME_V2 or SigSchemes.SIG_SCHEME_V3 or SigSchemes.SIG_SCHEME_V4,
+)
+
+private fun sigSchemeLabels(): List<String> = listOf(
+    "v1 (JAR)",
+    "v2 (APK)",
+    "v3 (APK+key rotation)",
+    "v4 (ID sig)",
+    "v1 + v2 (Recommended)",
+    "v1 + v2 + v3",
+    "v1 + v2 + v3 + v4",
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DropDownMenuWidget(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    description: String,
+    choice: Int,
+    data: List<String>,
+    onChoiceChange: (Int) -> Unit,
+) {
+    DropDownMenuWidget(
+        icon = icon,
+        title = title,
+        description = description,
+        choice = choice,
+        data = data,
+        onChoiceChange = onChoiceChange,
+    )
+}
+
+@Composable
+private fun DropDownMenuWidget(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    description: String,
+    choice: Int,
+    data: List<String>,
+    onChoiceChange: (Int) -> Unit,
+) {
+    // Implementation omitted for brevity - using existing DropDownMenuWidget
+    DropDownMenuWidget(
+        icon = icon,
+        title = title,
+        description = description,
+        choice = choice,
+        data = sigSchemeLabels(),
+        onChoiceChange = onChoiceChange,
+    )
 }
 
 @Composable

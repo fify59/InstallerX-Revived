@@ -18,6 +18,11 @@ sealed interface InstallerSettingsAction {
     data class ChangeDetectXposedModule(val detect: Boolean) : InstallerSettingsAction
     data class ChangeQuickOpenLSPosed(val open: Boolean) : InstallerSettingsAction
 
+    // --- APK Signing ---
+    data class ChangeInstallerSignApk(val sign: Boolean) : InstallerSettingsAction
+    data class ChangeInstallerSigSchemes(val schemes: Int) : InstallerSettingsAction
+    data class ChangeInstallerZipAlign(val align: Boolean) : InstallerSettingsAction
+
     // --- Collection Management ---
     data class AddManagedInstallerPackage(val pkg: NamedPackage) : InstallerSettingsAction
     data class RemoveManagedInstallerPackage(val pkg: NamedPackage) : InstallerSettingsAction

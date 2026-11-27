@@ -199,6 +199,14 @@
     <string name="config_show_signature_info_on_match_desc">Show signature notices for matching signatures and new installs</string>
     <string name="config_show_signature_details">Show signature details</string>
     <string name="config_show_signature_details_desc">Show certificate summaries, verified schemes, warnings, and errors in signature notices</string>
+    <string name="installer_settings_apk_signing">APK Signing</string>
+    <string name="installer_sign_apk">Sign APKs during installation</string>
+    <string name="installer_sign_apk_desc">Sign APKs with your own key during installation (requires signing key to be imported)</string>
+    <string name="installer_zip_align">Zip align APKs</string>
+    <string name="installer_zip_align_desc">Optimize APK by aligning file boundaries to 4-byte boundaries for better performance</string>
+    <string name="installer_sig_schemes">Signature schemes</string>
+    <string name="installer_sig_schemes_desc">Choose APK signature schemes (v1, v2, v3, v4)</string>
+    <string name="installer_sign_apk_no_key">No signing key imported. Import a .p12 key to enable APK signing.</string>
     <string name="config_detect_xposed_module">Detect Xposed modules</string>
     <string name="config_detect_xposed_module_desc">Detect and show Xposed module info during installation</string>
     <string name="config_quick_open_lsposed">Quickly open LSPosed</string>
