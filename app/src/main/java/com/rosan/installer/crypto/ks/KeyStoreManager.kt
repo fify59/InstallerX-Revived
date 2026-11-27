@@ -162,7 +162,7 @@ public class KeyStoreManager {
     public fun importKeyFromP12(
         p12File: File,
         p12Password: String,
-        alias: String = SIGNING_KEY_ALIAS
+        alias: String = SIGNING_KEY_ALIAS,
     ): Boolean {
         if (!p12File.exists()) {
             throw IOException("PKCS12 file not found: ${p12File.absolutePath}")
