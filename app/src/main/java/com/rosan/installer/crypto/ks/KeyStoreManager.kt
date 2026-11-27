@@ -35,10 +35,12 @@ public class KeyStoreManager {
         const val AM_KEYSTORE_FILE_NAME = "am_keystore.bks"
         const val AM_KEYSTORE = "BKS"
         const val PREF_AM_KEYSTORE_PREFIX = "ks_"
+        public const val SIGNING_KEY_ALIAS = "signing_key"
         const val PREF_AM_KEYSTORE_PASS = "kspass"
         const val ACTION_KS_INTERACTION_BEGIN = "com.rosan.installer.x.revived.action.KS_INTERACTION_BEGIN"
         const val ACTION_KS_INTERACTION_END = "com.rosan.installer.x.revived.action.KS_INTERACTION_END"
 
+        @SuppressLint("StaticFieldLeak")
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized fun getInstance(): KeyStoreManager {
@@ -137,6 +139,71 @@ public class KeyStoreManager {
     private fun decryptPassword(encryptedPass: String): CharArray = Base64.decode(encryptedPass, Base64.NO_WRAP).let { String(it) }.toCharArray()
 
     private fun clearChars(chars: CharArray) = java.util.Arrays.fill(chars, '\u0000')
+
+    @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
+    public fun insertKeyPair(alias: String, keyPair: KeyPair) {
+        val password = getAmKeyStorePassword()
+        try {
+            mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
+            saveKeyStore(password)
+        } finally {
+            clearChars(password)
+        }
+    }
+
+    /**
+     * Import a key pair from a PKCS12 (.p12/.pfx) file.
+     * @param p12File The PKCS12 file to import
+     * @param p12Password The password for the PKCS12 file
+     * @param alias The alias to store the key under (default: "signing_key")
+     * @return true if import was successful
+     */
+    @Throws(KeyStoreException::class, IOException::class, NoSuchAlgorithmException::class, CertificateException::class)
+    public fun importKeyFromP12(
+        p12File: File,
+        p12Password: String,
+        alias: String = SIGNING_KEY_ALIAS
+    ): Boolean {
+        if (!p12File.exists()) {
+            throw IOException("PKCS12 file not found: ${p12File.absolutePath}")
+        }
+
+        val p12Store = KeyStore.getInstance("PKCS12")
+        val p12InputStream = FileInputStream(p12File)
+        try {
+            p12Store.load(p12InputStream, p12Password.toCharArray())
+        } finally {
+            p12InputStream.close()
+        }
+
+        // Find the first private key entry
+        var keyAlias: String? = null
+        val aliases = p12Store.aliases()
+        while (aliases.hasMoreElements()) {
+            val a = aliases.nextElement()
+            if (p12Store.isKeyEntry(a)) {
+                keyAlias = a
+                break
+            }
+        }
+
+        if (keyAlias == null) {
+            throw KeyStoreException("No private key found in PKCS12 file")
+        }
+
+        val privateKey = p12Store.getKey(keyAlias, p12Password.toCharArray()) as? PrivateKey
+            ?: throw KeyStoreException("Failed to extract private key from PKCS12")
+
+        val certChain = p12Store.getCertificateChain(keyAlias)
+            ?: throw KeyStoreException("No certificate chain found in PKCS12")
+
+        // Insert into our BKS keystore
+        val keyPair = KeyPair(privateKey, certChain[0] as X509Certificate)
+        insertKeyPair(alias, keyPair)
+
+        Log.i(TAG, "Successfully imported key from PKCS12 as '$alias'")
+        return true
+    }
 
     @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
     public fun insertKeyPair(alias: String, keyPair: KeyPair) {
