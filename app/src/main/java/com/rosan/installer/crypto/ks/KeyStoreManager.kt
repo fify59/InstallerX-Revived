@@ -44,15 +44,14 @@ public class KeyStoreManager {
         @SuppressLint("StaticFieldLeak")
         private var sInstance: KeyStoreManager? = null
 
-        @Synchronized fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager(context.applicationContext).also { sInstance = it }
+        @Synchronized
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager(context.applicationContext).also { sInstance = it }
 
-        @Synchronized fun reloadKeyStore() {
-            sInstance = KeyStoreManager()
-        }
+        @Synchronized
+        fun reloadKeyStore() = sInstance = KeyStoreManager()
 
-        @Synchronized fun clearCachedKeyStore() {
-            sInstance = null
-        }
+        @Synchronized
+        fun clearCachedKeyStore() = sInstance = null
     }
 
     private var mContext: Context
