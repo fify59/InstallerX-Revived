@@ -206,7 +206,7 @@ public class KeyStoreManager {
     }
 
     @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
-    public fun insertKeyPair(alias: String, keyPair: KeyPair) {
+    private fun insertKeyPairInternal(alias: String, keyPair: KeyPair) {
         val password = getAmKeyStorePassword()
         try {
             mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
