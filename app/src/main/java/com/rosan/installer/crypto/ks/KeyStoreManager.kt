@@ -45,11 +45,10 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager =
-            sInstance ?: KeyStoreManager().also {
-                it.init(context.applicationContext)
-                sInstance = it
-            }
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also {
+            it.init(context.applicationContext)
+            sInstance = it
+        }
 
         @Synchronized
         fun reloadKeyStore() = sInstance = KeyStoreManager()
@@ -233,7 +232,7 @@ public class KeyStoreManager {
     public fun getKeyPair(alias: String): KeyPair? {
         val key = getKey(alias)
         if (key is PrivateKey) {
-            return KeyPair(key, mAmKeyStore?.getCertificate(alias))
+            return KeyPair(key, mAmKeyStore?.getCertificate(alias)!!)
         }
         throw KeyStoreException("The alias $alias does not have a KeyPair.")
     }
