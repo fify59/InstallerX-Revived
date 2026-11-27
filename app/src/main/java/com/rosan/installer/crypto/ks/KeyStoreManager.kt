@@ -77,11 +77,11 @@ public class KeyStoreManager {
         val realPassword = getAmKeyStorePassword()
         try {
             if (mKeyStoreFile.exists()) {
-                val is = FileInputStream(mKeyStoreFile)
+                val inputStream = FileInputStream(mKeyStoreFile)
                 try {
-                    keyStore.load(is, realPassword)
+                    keyStore.load(inputStream, realPassword)
                 } finally {
-                    is.close()
+                    inputStream.close()
                 }
             } else {
                 keyStore.load(null)
