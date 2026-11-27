@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.rosan.installer.crypto.ks
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -42,23 +45,13 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager {
-            if (sInstance == null) {
-                sInstance = KeyStoreManager()
-                sInstance!!.init(context.applicationContext)
-            }
-            return sInstance!!
-        }
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also { it.init(context.applicationContext); sInstance = it }
 
         @Synchronized
-        fun reloadKeyStore() {
-            sInstance = KeyStoreManager()
-        }
+        fun reloadKeyStore() = sInstance = KeyStoreManager()
 
         @Synchronized
-        fun clearCachedKeyStore() {
-            sInstance = null
-        }
+        fun clearCachedKeyStore() = sInstance = null
     }
 
     private var mContext: Context? = null
