@@ -64,7 +64,6 @@ import com.rosan.installer.apk.signing.SigSchemes
 import com.rosan.installer.core.device.model.Manufacturer
 import com.rosan.installer.core.env.DeviceConfig
 import com.rosan.installer.crypto.ks.KeyStoreManager
-import com.rosan.installer.domain.settings.action.InstallerSettingsAction
 import com.rosan.installer.domain.settings.model.app.NamedPackage
 import com.rosan.installer.domain.settings.model.app.SharedUid
 import com.rosan.installer.domain.settings.model.config.BiometricAuthMode
@@ -108,9 +107,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
             LargeFlexibleTopAppBar(
                 modifier = Modifier.installerMaterial3BlurEffect(backdrop),
                 windowInsets = TopAppBarDefaults.windowInsets.add(WindowInsets(left = 12.dp)),
-                title = {
-                    Text(stringResource(R.string.installer_settings))
-                },
+                title = { Text(stringResource(R.string.installer_settings)) },
                 navigationIcon = {
                     Row {
                         ExpressiveBackButton { navigator.pop() }
@@ -169,9 +166,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                         item {
                             DataInstallerBiometricAuthWidget(
                                 currentMode = uiState.installerRequireBiometricAuth,
-                                onModeChange = {
-                                    viewModel.dispatch(InstallerSettingsAction.ChangeBiometricAuth(it))
-                                },
+                                onModeChange = { viewModel.dispatch(InstallerSettingsAction.ChangeBiometricAuth(it)) },
                             )
                         }
                     }
@@ -179,7 +174,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
             }
 
             item {
-                val canSign = KeyStoreManager.getInstance().containsKey("signing_key")
+                val canSign = KeyStoreManager.getInstance(context).containsKey(KeyStoreManager.SIGNING_KEY_ALIAS)
 
                 SegmentedColumn(title = stringResource(R.string.installer_settings_apk_signing)) {
                     item {
@@ -188,9 +183,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.installer_sign_apk),
                             description = stringResource(R.string.installer_sign_apk_desc),
                             checked = uiState.installerSignApk,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeInstallerSignApk(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeInstallerSignApk(it)) },
                             enabled = canSign,
                         )
                     }
@@ -200,9 +193,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.installer_zip_align),
                             description = stringResource(R.string.installer_zip_align_desc),
                             checked = uiState.installerZipAlign,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeInstallerZipAlign(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeInstallerZipAlign(it)) },
                         )
                     }
                     item(animatedVisibility = uiState.installerSignApk && canSign) {
@@ -255,9 +246,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_check_app_signature),
                             description = stringResource(R.string.config_check_app_signature_desc),
                             checked = uiState.checkAppSignature,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeCheckAppSignature(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeCheckAppSignature(it)) },
                         )
                     }
                     item(animatedVisibility = uiState.checkAppSignature) {
@@ -266,9 +255,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_check_source_stamp),
                             description = stringResource(R.string.config_check_source_stamp_desc),
                             checked = uiState.checkSourceStamp,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeCheckSourceStamp(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeCheckSourceStamp(it)) },
                         )
                     }
                     item(animatedVisibility = uiState.checkAppSignature) {
@@ -277,9 +264,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_show_signature_info_on_match),
                             description = stringResource(R.string.config_show_signature_info_on_match_desc),
                             checked = uiState.showSignatureInfoOnMatch,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeShowSignatureInfoOnMatch(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeShowSignatureInfoOnMatch(it)) },
                         )
                     }
                     item(animatedVisibility = uiState.checkAppSignature) {
@@ -288,9 +273,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_show_signature_details),
                             description = stringResource(R.string.config_show_signature_details_desc),
                             checked = uiState.showSignatureDetails,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeShowSignatureDetails(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeShowSignatureDetails(it)) },
                         )
                     }
                 }
@@ -304,9 +287,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_detect_xposed_module),
                             description = stringResource(R.string.config_detect_xposed_module_desc),
                             checked = uiState.detectXposedModule,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeDetectXposedModule(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeDetectXposedModule(it)) },
                         )
                     }
                     item(animatedVisibility = uiState.detectXposedModule) {
@@ -315,9 +296,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                             title = stringResource(R.string.config_quick_open_lsposed),
                             description = stringResource(R.string.config_quick_open_lsposed_desc),
                             checked = uiState.quickOpenLSPosed,
-                            onCheckedChange = {
-                                viewModel.dispatch(InstallerSettingsAction.ChangeQuickOpenLSPosed(it))
-                            },
+                            onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeQuickOpenLSPosed(it)) },
                         )
                     }
                 }
@@ -334,9 +313,7 @@ fun InstallerGlobalSettingsPage(useBlur: Boolean, viewModel: InstallerSettingsVi
                                 title = stringResource(R.string.installer_show_oem_special),
                                 description = stringResource(R.string.installer_show_oem_special_desc),
                                 checked = uiState.showOPPOSpecial,
-                                onCheckedChange = {
-                                    viewModel.dispatch(InstallerSettingsAction.ChangeShowOPPOSpecial(it))
-                                },
+                                onCheckedChange = { viewModel.dispatch(InstallerSettingsAction.ChangeShowOPPOSpecial(it)) },
                             )
                         }
                     }
@@ -446,9 +423,7 @@ private fun sigSchemeLabels(): List<String> = listOf(
 
 @Composable
 private fun DataInstallerBiometricAuthWidget(currentMode: BiometricAuthMode, onModeChange: (BiometricAuthMode) -> Unit) {
-    val modes = remember {
-        listOf(BiometricAuthMode.Disable, BiometricAuthMode.Enable, BiometricAuthMode.FollowConfig)
-    }
+    val modes = remember { listOf(BiometricAuthMode.Disable, BiometricAuthMode.Enable, BiometricAuthMode.FollowConfig) }
     val options = modes.map { mode ->
         when (mode) {
             BiometricAuthMode.Disable -> stringResource(R.string.installer_biometric_auth_mode_disable)
@@ -512,9 +487,7 @@ private fun ManagedPackagesWidget(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AnimatedVisibility(visible = isInfoVisible && !infoText.isNullOrBlank()) {
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(50)).background(infoColor.copy(alpha = 0.1f)).padding(horizontal = 12.dp, vertical = 6.dp),
-                    ) {
+                    Box(modifier = Modifier.clip(RoundedCornerShape(50)).background(infoColor.copy(alpha = 0.1f)).padding(horizontal = 12.dp, vertical = 6.dp)) {
                         Text(infoText ?: "", color = infoColor, style = MaterialTheme.typography.labelMedium)
                     }
                 }
