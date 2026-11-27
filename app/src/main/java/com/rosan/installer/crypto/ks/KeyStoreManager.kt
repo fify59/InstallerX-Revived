@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
+import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -72,7 +73,7 @@ public class KeyStoreManager {
 
     private fun getAmKeyStore(): KeyStore {
         val keyStore = KeyStore.getInstance(AM_KEYSTORE)
-        android.util.Log.w(TAG, "Using keystore $AM_KEYSTORE")
+        Log.w(TAG, "Using keystore $AM_KEYSTORE")
         val realPassword = getAmKeyStorePassword()
         try {
             if (AM_KEYSTORE_FILE.exists()) {
@@ -212,15 +213,5 @@ public class KeyStoreManager {
     private object ContextUtils {
         @Suppress("UNUSED_PARAMETER")
         fun getContext(): Context = throw UnsupportedOperationException("Need ContextUtils implementation")
-    }
-
-    private object Log {
-        fun w(tag: String, msg: String, tr: Throwable? = null) {
-            android.util.Log.w(tag, msg, tr)
-        }
-
-        fun e(tag: String, msg: String, tr: Throwable? = null) {
-            android.util.Log.e(tag, msg, tr)
-        }
     }
 }
