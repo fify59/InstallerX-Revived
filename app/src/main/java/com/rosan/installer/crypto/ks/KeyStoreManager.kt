@@ -45,7 +45,10 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also { it.init(context.applicationContext); sInstance = it }
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also {
+            it.init(context.applicationContext)
+            sInstance = it
+        }
 
         @Synchronized
         fun reloadKeyStore() = sInstance = KeyStoreManager()
