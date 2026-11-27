@@ -77,8 +77,11 @@ public class KeyStoreManager {
         val realPassword = getAmKeyStorePassword()
         try {
             if (AM_KEYSTORE_FILE.exists()) {
-                FileInputStream(AM_KEYSTORE_FILE).use { is ->
+                val is = FileInputStream(AM_KEYSTORE_FILE)
+                try {
                     keyStore.load(is, realPassword)
+                } finally {
+                    is.close()
                 }
             } else {
                 keyStore.load(null)
@@ -186,8 +189,11 @@ public class KeyStoreManager {
 
     @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     private fun saveKeyStore(password: CharArray) {
-        FileOutputStream(AM_KEYSTORE_FILE).use { os ->
+        val os = FileOutputStream(AM_KEYSTORE_FILE)
+        try {
             mAmKeyStore.store(os, password)
+        } finally {
+            os.close()
         }
     }
 
