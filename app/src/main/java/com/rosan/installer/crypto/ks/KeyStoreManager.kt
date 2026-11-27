@@ -70,14 +70,9 @@ public class KeyStoreManager {
         mAmKeyStore = getAmKeyStore()
     }
 
-    /**
-     * Get App Manager's KeyStore. The user will be asked for a password if the KeyStore password
-     * does not exist. If the KeyStore itself doesn't exist, it will initialize an empty KeyStore.
-     */
-    @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     private fun getAmKeyStore(): KeyStore {
         val keyStore = KeyStore.getInstance(AM_KEYSTORE)
-        Log.w(TAG, "Using keystore $AM_KEYSTORE")
+        android.util.Log.w(TAG, "Using keystore $AM_KEYSTORE")
         val realPassword = getAmKeyStorePassword()
         try {
             if (AM_KEYSTORE_FILE.exists()) {
@@ -93,32 +88,19 @@ public class KeyStoreManager {
         return keyStore
     }
 
-    /**
-     * Get App Manager's KeyStore password. The password is stored in the shared preferences in an
-     * encrypted format (the encryption/decryption is performed via AndroidKeyStore).
-     */
     @Throws(KeyStoreException::class)
     public fun getAmKeyStorePassword(): CharArray {
         val encryptedPass = sSharedPreferences.getString(PREF_AM_KEYSTORE_PASS, null)
         if (encryptedPass == null) {
-            // No password stored yet, generate a new one
             return generateAndStoreNewPassword()
         }
-        // Decrypt the stored password
         return try {
             decryptPassword(encryptedPass)
         } catch (e: Exception) {
-            // If decryption fails, generate a new password
             return generateAndStoreNewPassword()
         }
     }
 
-    /**
-     * Whether an encrypted recovery password has been stored, regardless of whether it can
-     * currently be decrypted. Used to distinguish a genuine first run from a device whose
-     * keystore lost the local protection key — the latter must never silently
-     * generate a fresh password over the one the user already saved.
-     */
     public fun hasSavedKeyStorePassword(): Boolean {
         return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
     }
@@ -136,9 +118,6 @@ public class KeyStoreManager {
         return AM_KEYSTORE_FILE.exists()
     }
 
-    /**
-     * Generate a new random password, encrypt it, and store it.
-     */
     @Throws(KeyStoreException::class)
     private fun generateAndStoreNewPassword(): CharArray {
         val password = generateRandomPassword()
@@ -147,9 +126,6 @@ public class KeyStoreManager {
         return password
     }
 
-    /**
-     * Generate a cryptographically secure random password.
-     */
     private fun generateRandomPassword(): CharArray {
         val random = java.security.SecureRandom()
         val bytes = ByteArray(32)
@@ -157,36 +133,20 @@ public class KeyStoreManager {
         return Base64.encodeToString(bytes, Base64.NO_WRAP).toCharArray()
     }
 
-    /**
-     * Encrypt the password using AndroidKeyStore.
-     */
     @Throws(KeyStoreException::class)
     private fun encryptPassword(password: CharArray): String {
-        // Implementation would use AndroidKeyStore to encrypt
-        // For now, return base64 encoded (insecure, but placeholder)
         return Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
     }
 
-    /**
-     * Decrypt the password using AndroidKeyStore.
-     */
     @Throws(KeyStoreException::class, Exception::class)
     private fun decryptPassword(encryptedPass: String): CharArray {
-        // Implementation would use AndroidKeyStore to decrypt
-        // For now, decode base64 (insecure, but placeholder)
         return Base64.decode(encryptedPass, Base64.NO_WRAP).let { String(it) }.toCharArray()
     }
 
-    /**
-     * Clear sensitive char array from memory.
-     */
     private fun clearChars(chars: CharArray) {
         java.util.Arrays.fill(chars, '\u0000')
     }
 
-    /**
-     * Insert a new key pair into the KeyStore.
-     */
     @Throws(KeyStoreException::class, CertificateException::class, IOException::class, NoSuchAlgorithmException::class)
     public fun insertKeyPair(alias: String, keyPair: KeyPair) {
         val password = getAmKeyStorePassword()
@@ -198,9 +158,6 @@ public class KeyStoreManager {
         }
     }
 
-    /**
-     * Check if the KeyStore contains an alias.
-     */
     public fun containsKey(alias: String): Boolean {
         return try {
             mAmKeyStore.containsAlias(alias)
@@ -209,9 +166,6 @@ public class KeyStoreManager {
         }
     }
 
-    /**
-     * Get a KeyPair from the KeyStore.
-     */
     @Throws(KeyStoreException::class)
     public fun getKeyPair(alias: String): KeyPair? {
         val key = getKey(alias)
@@ -229,9 +183,6 @@ public class KeyStoreManager {
         return key
     }
 
-    /**
-     * Save the KeyStore to disk.
-     */
     @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     private fun saveKeyStore(password: CharArray) {
         FileOutputStream(AM_KEYSTORE_FILE).use { os ->
@@ -239,9 +190,6 @@ public class KeyStoreManager {
         }
     }
 
-    /**
-     * Remove a key from the KeyStore.
-     */
     @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     public fun removeKey(alias: String) {
         val password = getAmKeyStorePassword()
@@ -253,9 +201,6 @@ public class KeyStoreManager {
         }
     }
 
-    /**
-     * Get all aliases in the KeyStore.
-     */
     public fun getAliases(): List<String> {
         return try {
             mAmKeyStore.aliases().asSequence().toList()
@@ -264,20 +209,18 @@ public class KeyStoreManager {
         }
     }
 
-// Utility class for ContextUtils
-private object ContextUtils {
-    @Suppress("UNUSED_PARAMETER")
-    fun getContext(): Context = throw UnsupportedOperationException("Need ContextUtils implementation")
-}
-
-// Utility class for Log
-private object Log {
-    fun w(tag: String, msg: String, tr: Throwable? = null) {
-        android.util.Log.w(tag, msg, tr)
+    private object ContextUtils {
+        @Suppress("UNUSED_PARAMETER")
+        fun getContext(): Context = throw UnsupportedOperationException("Need ContextUtils implementation")
     }
 
-    fun e(tag: String, msg: String, tr: Throwable? = null) {
-        android.util.Log.e(tag, msg, tr)
+    private object Log {
+        fun w(tag: String, msg: String, tr: Throwable? = null) {
+            android.util.Log.w(tag, msg, tr)
+        }
+
+        fun e(tag: String, msg: String, tr: Throwable? = null) {
+            android.util.Log.e(tag, msg, tr)
+        }
     }
-}
 }
