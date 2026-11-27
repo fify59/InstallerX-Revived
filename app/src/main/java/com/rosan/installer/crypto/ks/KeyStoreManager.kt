@@ -105,11 +105,11 @@ public class KeyStoreManager {
         }
     }
 
-    public fun hasSavedKeyStorePassword(): Boolean {
+    public fun hasSavedKeyStorePassword(): Boolean =
         return sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
     }
 
-    public fun hasKeyStorePassword(): Boolean {
+    public fun hasKeyStorePassword(): Boolean =
         return try {
             reloadKeyStore()
             true
@@ -118,7 +118,7 @@ public class KeyStoreManager {
         }
     }
 
-    public fun hasKeyStore(): Boolean {
+    public fun hasKeyStore(): Boolean =
         return mKeyStoreFile.exists()
     }
 
@@ -130,7 +130,7 @@ public class KeyStoreManager {
         return password
     }
 
-    private fun generateRandomPassword(): CharArray {
+    private fun generateRandomPassword(): CharArray =
         val random = java.security.SecureRandom()
         val bytes = ByteArray(32)
         random.nextBytes(bytes)
@@ -156,7 +156,7 @@ public class KeyStoreManager {
         }
     }
 
-    public fun containsKey(alias: String): Boolean {
+    public fun containsKey(alias: String): Boolean =
         return try {
             mAmKeyStore.containsAlias(alias)
         } catch (e: KeyStoreException) {
