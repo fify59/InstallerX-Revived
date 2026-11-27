@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-package com.rosan.installer.crypto.ks
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -45,26 +44,40 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager(context.applicationContext).also { sInstance = it }
+        fun getInstance(context: Context): KeyStoreManager {
+            if (sInstance == null) {
+                sInstance = KeyStoreManager()
+                sInstance!!.init(context.applicationContext)
+            }
+            return sInstance!!
+        }
 
         @Synchronized
-        fun reloadKeyStore() = sInstance = KeyStoreManager()
+        fun reloadKeyStore() {
+            sInstance = KeyStoreManager()
+        }
 
         @Synchronized
-        fun clearCachedKeyStore() = sInstance = null
+        fun clearCachedKeyStore() {
+            sInstance = null
+        }
     }
 
-    private var mContext: Context
-    private var mAmKeyStore: KeyStore
+    private var mContext: Context? = null
+    private var mAmKeyStore: KeyStore? = null
     private var mInteractionWatcher: CountDownLatch? = null
 
-    private var mKeyStoreFile: File
-    private var sSharedPreferences: SharedPreferences
+    private var mKeyStoreFile: File? = null
+    private var sSharedPreferences: SharedPreferences? = null
 
-    init {
-        mContext = ContextUtils.getContext()
-        mKeyStoreFile = File(mContext.filesDir, AM_KEYSTORE_FILE_NAME)
-        sSharedPreferences = mContext.getSharedPreferences("keystore", Context.MODE_PRIVATE)
+    // Parameterless constructor for singleton pattern
+    constructor() {}
+
+    // Private initialization method
+    private fun init(context: Context) {
+        mContext = context
+        mKeyStoreFile = File(context.filesDir, AM_KEYSTORE_FILE_NAME)
+        sSharedPreferences = context.getSharedPreferences("keystore", Context.MODE_PRIVATE)
         mAmKeyStore = getAmKeyStore()
     }
 
@@ -73,16 +86,18 @@ public class KeyStoreManager {
         Log.w(TAG, "Using keystore $AM_KEYSTORE")
         val realPassword = getAmKeyStorePassword()
         try {
-            if (mKeyStoreFile.exists()) {
-                val inputStream = FileInputStream(mKeyStoreFile)
-                try {
-                    keyStore.load(inputStream, realPassword)
-                } finally {
-                    inputStream.close()
+            mKeyStoreFile?.let { file ->
+                if (file.exists()) {
+                    val inputStream = FileInputStream(file)
+                    try {
+                        keyStore.load(inputStream, realPassword)
+                    } finally {
+                        inputStream.close()
+                    }
+                } else {
+                    keyStore.load(null)
                 }
-            } else {
-                keyStore.load(null)
-            }
+            } ?: run { keyStore.load(null) }
         } finally {
             clearChars(realPassword)
         }
@@ -91,7 +106,7 @@ public class KeyStoreManager {
 
     @Throws(KeyStoreException::class)
     public fun getAmKeyStorePassword(): CharArray {
-        val encryptedPass = sSharedPreferences.getString(PREF_AM_KEYSTORE_PASS, null)
+        val encryptedPass = sSharedPreferences?.getString(PREF_AM_KEYSTORE_PASS, null)
         if (encryptedPass == null) {
             return generateAndStoreNewPassword()
         }
@@ -102,7 +117,7 @@ public class KeyStoreManager {
         }
     }
 
-    public fun hasSavedKeyStorePassword(): Boolean = sSharedPreferences.contains(PREF_AM_KEYSTORE_PASS)
+    public fun hasSavedKeyStorePassword(): Boolean = sSharedPreferences?.contains(PREF_AM_KEYSTORE_PASS) ?: false
 
     public fun hasKeyStorePassword(): Boolean = try {
         reloadKeyStore()
@@ -111,13 +126,13 @@ public class KeyStoreManager {
         false
     }
 
-    public fun hasKeyStore(): Boolean = mKeyStoreFile.exists()
+    public fun hasKeyStore(): Boolean = mKeyStoreFile?.exists() ?: false
 
     @Throws(KeyStoreException::class)
     private fun generateAndStoreNewPassword(): CharArray {
         val password = generateRandomPassword()
         val encrypted = encryptPassword(password)
-        sSharedPreferences.edit().putString(PREF_AM_KEYSTORE_PASS, encrypted).apply()
+        sSharedPreferences?.edit().putString(PREF_AM_KEYSTORE_PASS, encrypted).apply()
         return password
     }
 
@@ -141,7 +156,7 @@ public class KeyStoreManager {
     public fun insertKeyPair(alias: String, keyPair: KeyPair) {
         val password = getAmKeyStorePassword()
         try {
-            mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
+            mAmKeyStore?.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
             saveKeyStore(password)
         } finally {
             clearChars(password)
@@ -206,7 +221,7 @@ public class KeyStoreManager {
     private fun insertKeyPairInternal(alias: String, keyPair: KeyPair) {
         val password = getAmKeyStorePassword()
         try {
-            mAmKeyStore.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
+            mAmKeyStore?.setKeyEntry(alias, keyPair.privateKey, password, arrayOf(keyPair.certificate))
             saveKeyStore(password)
         } finally {
             clearChars(password)
@@ -214,7 +229,7 @@ public class KeyStoreManager {
     }
 
     public fun containsKey(alias: String): Boolean = try {
-        mAmKeyStore.containsAlias(alias)
+        mAmKeyStore?.containsAlias(alias) ?: false
     } catch (e: KeyStoreException) {
         false
     }
@@ -223,7 +238,7 @@ public class KeyStoreManager {
     public fun getKeyPair(alias: String): KeyPair? {
         val key = getKey(alias)
         if (key is PrivateKey) {
-            return KeyPair(key, mAmKeyStore.getCertificate(alias))
+            return KeyPair(key, mAmKeyStore?.getCertificate(alias))
         }
         throw KeyStoreException("The alias $alias does not have a KeyPair.")
     }
@@ -231,16 +246,16 @@ public class KeyStoreManager {
     @Throws(UnrecoverableKeyException::class, NoSuchAlgorithmException::class, KeyStoreException::class)
     private fun getKey(alias: String): Key? {
         val password = getAmKeyStorePassword()
-        val key = mAmKeyStore.getKey(alias, password)
+        val key = mAmKeyStore?.getKey(alias, password)
         clearChars(password)
         return key
     }
 
     @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     private fun saveKeyStore(password: CharArray) {
-        val os = FileOutputStream(mKeyStoreFile)
+        val os = FileOutputStream(mKeyStoreFile!!)
         try {
-            mAmKeyStore.store(os, password)
+            mAmKeyStore?.store(os, password)
         } finally {
             os.close()
         }
@@ -250,7 +265,7 @@ public class KeyStoreManager {
     public fun removeKey(alias: String) {
         val password = getAmKeyStorePassword()
         try {
-            mAmKeyStore.deleteEntry(alias)
+            mAmKeyStore?.deleteEntry(alias)
             saveKeyStore(password)
         } finally {
             clearChars(password)
@@ -258,7 +273,7 @@ public class KeyStoreManager {
     }
 
     public fun getAliases(): List<String> = try {
-        mAmKeyStore.aliases().asSequence().toList()
+        mAmKeyStore?.aliases()?.asSequence()?.toList() ?: emptyList()
     } catch (e: KeyStoreException) {
         emptyList()
     }
