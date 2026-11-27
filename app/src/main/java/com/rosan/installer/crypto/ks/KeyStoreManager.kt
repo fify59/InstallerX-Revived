@@ -61,12 +61,12 @@ public class KeyStoreManager {
     private var mAmKeyStore: KeyStore
     private var mInteractionWatcher: CountDownLatch? = null
 
-    private var AM_KEYSTORE_FILE: File
+    private var mKeyStoreFile: File
     private var sSharedPreferences: SharedPreferences
 
     init {
         mContext = ContextUtils.getContext()
-        AM_KEYSTORE_FILE = File(mContext.filesDir, AM_KEYSTORE_FILE_NAME)
+        mKeyStoreFile = File(mContext.filesDir, AM_KEYSTORE_FILE_NAME)
         sSharedPreferences = mContext.getSharedPreferences("keystore", Context.MODE_PRIVATE)
         mAmKeyStore = getAmKeyStore()
     }
@@ -76,8 +76,8 @@ public class KeyStoreManager {
         Log.w(TAG, "Using keystore $AM_KEYSTORE")
         val realPassword = getAmKeyStorePassword()
         try {
-            if (AM_KEYSTORE_FILE.exists()) {
-                val is = FileInputStream(AM_KEYSTORE_FILE)
+            if (mKeyStoreFile.exists()) {
+                val is = FileInputStream(mKeyStoreFile)
                 try {
                     keyStore.load(is, realPassword)
                 } finally {
@@ -119,7 +119,7 @@ public class KeyStoreManager {
     }
 
     public fun hasKeyStore(): Boolean {
-        return AM_KEYSTORE_FILE.exists()
+        return mKeyStoreFile.exists()
     }
 
     @Throws(KeyStoreException::class)
@@ -189,7 +189,7 @@ public class KeyStoreManager {
 
     @Throws(KeyStoreException::class, IOException::class, CertificateException::class, NoSuchAlgorithmException::class)
     private fun saveKeyStore(password: CharArray) {
-        val os = FileOutputStream(AM_KEYSTORE_FILE)
+        val os = FileOutputStream(mKeyStoreFile)
         try {
             mAmKeyStore.store(os, password)
         } finally {
