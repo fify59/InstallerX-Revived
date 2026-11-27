@@ -1,6 +1,4 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
-
-
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import java.util.Properties
 
@@ -21,7 +19,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
 
     val properties = Properties()
     val keystorePropertiesFile = rootProject.file("keystore.properties")
