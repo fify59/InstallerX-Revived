@@ -45,10 +45,7 @@ public class KeyStoreManager {
         private var sInstance: KeyStoreManager? = null
 
         @Synchronized
-        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also {
-            it.init(context.applicationContext)
-            sInstance = it
-        }
+        fun getInstance(context: Context): KeyStoreManager = sInstance ?: KeyStoreManager().also { it.init(context.applicationContext); sInstance = it }
 
         @Synchronized
         fun reloadKeyStore() = sInstance = KeyStoreManager()
@@ -135,12 +132,10 @@ public class KeyStoreManager {
     }
 
     @Throws(KeyStoreException::class)
-    private fun encryptPassword(password: CharArray): String =
-        Base64.encodeToString(password.concatToString().toByteArray(StandardCharsets.UTF_8), Base64.NO_WRAP)
+    private fun encryptPassword(password: CharArray): String = Base64.encodeToString(password.concatToString().toByteArray(StandardCharsets.UTF_8), Base64.NO_WRAP)
 
     @Throws(KeyStoreException::class, Exception::class)
-    private fun decryptPassword(encryptedPass: String): CharArray =
-        String(Base64.decode(encryptedPass, Base64.NO_WRAP), StandardCharsets.UTF_8).toCharArray()
+    private fun decryptPassword(encryptedPass: String): CharArray = String(Base64.decode(encryptedPass, Base64.NO_WRAP), StandardCharsets.UTF_8).toCharArray()
 
     private fun clearChars(chars: CharArray) = java.util.Arrays.fill(chars, '\u0000')
 
