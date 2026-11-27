@@ -190,6 +190,10 @@ object AppIcons {
     val Glow = Icons.TwoTone.Flare
     val PredictiveBack = Icons.TwoTone.Animation
     val PredictiveBackDirection = Icons.TwoTone.SwapHoriz
+    // --- APK signing icons ---
+    val Signature = Icons.TwoTone.VerifiedUser
+    val ZipAlign = Icons.TwoTone.Compress
+    val SigSchemes = Icons.TwoTone.SettingsSuggest
     // --- Settings icons end ---
 
     // --- Profile pkg icons set ---
