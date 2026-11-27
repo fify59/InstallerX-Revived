@@ -124,7 +124,11 @@ public class KeyStoreManager {
         return password
     }
 
-    private fun generateRandomPassword(): CharArray = java.security.SecureRandom().also { it.nextBytes(ByteArray(32)) }.let { Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP).toCharArray() }
+    private fun generateRandomPassword(): CharArray {
+        val bytes = ByteArray(32)
+        java.security.SecureRandom().nextBytes(bytes)
+        return Base64.encodeToString(bytes, Base64.NO_WRAP).toCharArray()
+    }
 
     @Throws(KeyStoreException::class)
     private fun encryptPassword(password: CharArray): String = Base64.encodeToString(password.joinToString("").toByteArray(), Base64.NO_WRAP)
