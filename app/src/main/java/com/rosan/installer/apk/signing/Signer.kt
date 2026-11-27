@@ -108,10 +108,16 @@ public class Signer {
                         Log.w(TAG, "V2 signature verification failed/disabled.")
                     }
                     if (sigSchemes.v3SchemeEnabled()) {
-                        if (result.isVerifiedUsingV3Scheme()) Log.i(TAG, "V3 signature verified.")
-                        else Log.w(TAG, "V3 signature verification failed.")
-                        if (result.isVerifiedUsingV31Scheme()) Log.i(TAG, "V3.1 signature verified.")
-                        else Log.w(TAG, "V3.1 signature verification failed.")
+                        if (result.isVerifiedUsingV3Scheme()) {
+                            Log.i(TAG, "V3 signature verified.")
+                        } else {
+                            Log.w(TAG, "V3 signature verification failed.")
+                        }
+                        if (result.isVerifiedUsingV31Scheme()) {
+                            Log.i(TAG, "V3.1 signature verified.")
+                        } else {
+                            Log.w(TAG, "V3.1 signature verification failed.")
+                        }
                     } else {
                         Log.w(TAG, "V3 signature verification disabled.")
                     }
@@ -120,8 +126,11 @@ public class Signer {
                     } else {
                         Log.w(TAG, "V4 signature verification failed/disabled.")
                     }
-                    if (result.isSourceStampVerified()) Log.i(TAG, "SourceStamp verified.")
-                    else Log.w(TAG, "SourceStamp not verified/unavailable.")
+                    if (result.isSourceStampVerified()) {
+                        Log.i(TAG, "SourceStamp verified.")
+                    } else {
+                        Log.w(TAG, "SourceStamp not verified/unavailable.")
+                    }
 
                     var i = 0
                     Log.i(TAG, "Number of signatures: ${result.signerCertificates.size}")
